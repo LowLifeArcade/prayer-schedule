@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
         return { message: 'success', id: lastInsertRowid, title, body };
     } catch (error) {
-        console.log({ error })
-            throw createError({ message: 'could not add prayer', statusCode: 500 });
+        console.log({ error });
+        throw createError({ message: 'could not add prayer', statusCode: 400 });
     }
 });
