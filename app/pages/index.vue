@@ -1,6 +1,31 @@
 <template>
     <div class="v-prayers container">
-        <h1>Prayer List</h1>
+        <div class="top-bar">
+            <h1>Prayer List</h1>
+            <div
+                v-if="loggedIn"
+                class="user"
+            >
+                <div class="name">
+                    <span>{{ user.given_name }}</span>
+                    <div class="log-out">
+                        <button @click="clear">Log Out</button>
+                    </div>
+                </div>
+                <img
+                    :src="user.picture"
+                    alt=""
+                    height="50"
+                    width="50"
+                />
+            </div>
+            <a
+                v-else
+                class="login"
+                href="/auth/google"
+                >Login with Google</a
+            >
+        </div>
         <ul class="prayers">
             <li v-for="{ title, body } in data">
                 <div class="prayer">
@@ -74,12 +99,14 @@
 
 <script setup>
 const { data, pending, refresh } = useFetch('/api/prayers');
+const { loggedIn, user, fetch: refreshSession, clear } = useUserSession();
 
 const showAddPrayerForm = ref(false);
 const prayer = reactive({
     title: null,
     body: null,
 });
+
 async function onAddPrayer() {
     const resp = await $fetch('/api/prayer', {
         method: 'post',
@@ -91,8 +118,38 @@ async function onAddPrayer() {
 
 <style scoped>
 .v-prayers {
-    h1 {
-        margin-bottom: 2rem;
+    .top-bar {
+        padding-block: 1rem;
+        display: flex;
+        justify-content: space-between;
+
+        h1 {
+            margin-bottom: 2rem;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+
+            .name {
+                display: grid;
+                gap: 0.5rem;
+
+                .log-out {
+                    font-size: 1.4rem;
+                }
+            }
+
+            img {
+                border-radius: 10rem;
+            }
+        }
+        
+        .login {
+            display: grid;
+            place-items: center;
+        }
     }
 
     .prayers {
@@ -141,7 +198,7 @@ async function onAddPrayer() {
             height: 100%;
             background-color: hsl(0, 0%, 89%);
             transition: background-color 200ms ease-in-out;
-            
+
             &:hover {
                 background-color: hsl(0, 0%, 81%);
             }

@@ -79,7 +79,7 @@ a:visited {
     margin-inline: auto;
     width: 100%;
     max-width: 1500px;
-    padding: 1rem;
+    padding-inline: 1rem;
 }
 
 button {
