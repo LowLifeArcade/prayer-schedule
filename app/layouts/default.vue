@@ -10,6 +10,6 @@ export default {};
 
 <style>
 .v-base-layout {
-    font-size: 1.6rem;
+    font-size: 1.9rem;
 }
 </style>
