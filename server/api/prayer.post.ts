@@ -1,8 +1,8 @@
 export default defineEventHandler(async (event) => {
     try {
-        const { title, body } = await readBody(event);
+        const { title, body } = await readBody(event) || {};
         const db = useDatabase();
-        const { user } = await getUserSession(event);
+        const { user } = await getUserSession(event) || {};
 
         if (!user) {
             throw createError({ statusCode: 401, message: 'Unauthorized' });
