@@ -88,6 +88,6 @@ button {
     cursor: pointer;
 }
 
-input {
+input, textarea {
     width: 100%;
 }

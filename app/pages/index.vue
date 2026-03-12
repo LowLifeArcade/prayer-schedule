@@ -17,6 +17,7 @@
                 for="title"
                 class="title"
             >
+                <h4>Title</h4>
                 <input
                     type="text"
                     name="title"
@@ -26,7 +27,8 @@
                 for="body"
                 class="title"
             >
-                <input
+                <h4>Prayer</h4>
+                <textarea
                     type="text"
                     name="body"
                 />
@@ -48,20 +50,45 @@ const { data, pending } = useFetch('/api/prayers');
 
     .prayers {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 2rem;
+        margin-bottom: 3rem;
+
+        @media (width < 1100px) {
+            grid-template-columns: repeat(4, 1fr);
+        }
 
         @media (width < 800px) {
             grid-template-columns: repeat(2, 1fr);
         }
 
         .prayer {
+            h3 {
+                margin-bottom: 1rem;
+            }
+
+            p {
+                text-overflow: ellipsis;
+                max-width: 200px;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
         }
     }
 
     form {
         display: flex;
         flex-direction: column;
+        gap: 1rem;
+
+        label {
+            h4 {
+                margin-bottom: 1rem;
+            }
+        }
     }
 }
 </style>
