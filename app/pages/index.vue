@@ -140,6 +140,11 @@ async function onAddPrayer() {
             place-items: center;
             height: 100%;
             background-color: hsl(0, 0%, 89%);
+            transition: background-color 200ms ease-in-out;
+            
+            &:hover {
+                background-color: hsl(0, 0%, 81%);
+            }
         }
     }
 
