@@ -82,7 +82,7 @@
                 />
             </label>
             <button
-                class="btn cancel"
+                class="btn cancel "
                 @click="showAddPrayerForm = false"
             >
                 Cancel
