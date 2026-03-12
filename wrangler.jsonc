@@ -22,7 +22,7 @@
     },
     "d1_databases": [
         {
-            "binding": "DB",
+            "binding": "PRAYERS",
             "database_name": "prayers-db",
             "database_id": "0f888000-373c-422f-9920-526b2d20a406",
             // "remote": true,

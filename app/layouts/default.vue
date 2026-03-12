@@ -1,11 +1,15 @@
 <template>
-    <div>
+    <div class="v-base-layout">
         <slot />
     </div>
 </template>
 
 <script>
-    export default {};
+export default {};
 </script>
 
-<style scoped></style>
+<style>
+.v-base-layout {
+    font-size: 1.6rem;
+}
+</style>

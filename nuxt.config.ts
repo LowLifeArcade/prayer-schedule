@@ -1,16 +1,35 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+    compatibilityDate: '2025-07-15',
+    devtools: { enabled: true },
+    css: ['~/assets/css/main.css'],
 
-  nitro: {
-    preset: "cloudflare_module",
+    nitro: {
+        preset: 'cloudflare_module',
+        experimental: {
+            database: true,
+        },
+        devDatabase: {
+            default: {
+                connector: 'cloudflare-d1',
+                options: { bindingName: 'PRAYERS' },
+            },
+        },
+        database: {
+            default: {
+                connector: 'cloudflare-d1',
+                options: { bindingName: 'PRAYERS' },
+            },
+            // users: {
+            //     connector: 'cloudflare-d1',
+            //     options: { bindingName: 'USERS' },
+            // },
+        },
+        cloudflare: {
+            deployConfig: true,
+            nodeCompat: true,
+        },
+    },
 
-    cloudflare: {
-      deployConfig: true,
-      nodeCompat: true
-    }
-  },
-
-  modules: ["nitro-cloudflare-dev"]
-})
+    modules: ['nitro-cloudflare-dev'],
+});
