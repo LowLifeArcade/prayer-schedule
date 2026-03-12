@@ -1,9 +1,14 @@
 export default defineEventHandler(async (event) => {
     const { title, body } = await readBody(event);
     const db = useDatabase();
+    const { user } = await getUserSession(event);
+
+    if (!user) {
+        throw createError({ statusCode: 401, message: 'Unauthorized' });
+    }
 
     const { error, success, lastInsertRowid } = await db.sql`
-        INSERT INTO prayers (title, body) VALUES (${title}, ${body})
+        INSERT INTO prayers (title, body, user_id) VALUES (${title}, ${body}, ${user.sub})
     `;
 
     if (!success) {
