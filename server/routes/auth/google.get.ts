@@ -1,7 +1,7 @@
 // server/api/auth/google.get.ts
 export default defineOAuthGoogleEventHandler({
-    async onError(event) {
-        console.log({ event, error: 'oauth error' });
+    async onError(event, error) {
+        console.log({ event, message: 'oauth error', error });
         return sendRedirect(event, '/');
     },
     async onSuccess(event, { user }) {

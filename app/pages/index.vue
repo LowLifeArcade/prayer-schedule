@@ -123,9 +123,9 @@ async function onAddPrayer() {
         display: flex;
         justify-content: space-between;
 
-        h1 {
+        /* h1 {
             margin-bottom: 2rem;
-        }
+        } */
 
         .user {
             display: flex;
