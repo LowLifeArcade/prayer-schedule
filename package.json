@@ -1,25 +1,42 @@
 {
-	"name": "test-nuxt",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"build": "nuxt build",
-		"dev": "NODE_OPTIONS=--no-deprecation nuxt dev",
-		"generate": "nuxt generate",
-		"preview": "npm run build && wrangler dev",
-		"postinstall": "nuxt prepare",
-		"deploy": "npm run build && wrangler deploy",
-		"cf-typegen": "wrangler types"
-	},
-	"dependencies": {
-		"nuxt": "^4.3.1",
-		"vue": "^3.5.30",
-		"vue-router": "^4.6.4"
-	},
-	"devDependencies": {
-		"@types/node": "^25.4.0",
-		"nitro-cloudflare-dev": "^0.2.2",
-		"nitropack": "^2.13.1",
-		"wrangler": "^4.72.0"
-	}
+    "name": "test-nuxt",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "NODE_OPTIONS=--no-deprecation nuxt dev",
+        "generate": "nuxt generate",
+        "preview": "npm run build && wrangler dev",
+        "postinstall": "nuxt prepare",
+        "deploy": "npm run build && wrangler deploy",
+        "cf-typegen": "wrangler types",
+        "db:create": "wrangler d1 create prayers-db",
+        "db:list": "wrangler d1 list",
+        "db:info": "wrangler d1 info prayers-db",
+        "db:migration": "wrangler d1 migrations create prayers-db",
+        "db:migrate:local": "wrangler d1 migrations apply prayers-db --local",
+        "db:migrate:remote": "wrangler d1 migrations apply prayers-db --remote",
+        "db:migrate:status": "wrangler d1 migrations list prayers-db",
+        "db:query:local": "wrangler d1 execute prayers-db --local --command",
+        "db:query:remote": "wrangler d1 execute prayers-db --remote --command",
+        "db:file:local": "wrangler d1 execute prayers-db --local --file",
+        "db:file:remote": "wrangler d1 execute prayers-db --remote --file",
+        "db:seed:local": "wrangler d1 execute prayers-db --local --file ./db/seeds/prayers.sql",
+        "db:seed:remote": "wrangler d1 execute prayers-db --remote --file ./db/seeds/prayers.sql",
+        "db:export": "wrangler d1 export prayers-db --remote --output backup.sql",
+        "db:export:schema": "wrangler d1 export prayers-db --remote --output schema.sql --no-data",
+        "db:shell": "sqlite3 .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite",
+        "db:types": "wrangler types"
+    },
+    "dependencies": {
+        "nuxt": "^4.3.1",
+        "vue": "^3.5.30",
+        "vue-router": "^4.6.4"
+    },
+    "devDependencies": {
+        "@types/node": "^25.4.0",
+        "nitro-cloudflare-dev": "^0.2.2",
+        "nitropack": "^2.13.1",
+        "wrangler": "^4.72.0"
+    }
 }
