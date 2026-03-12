@@ -112,6 +112,7 @@ async function onAddPrayer() {
         method: 'post',
         body: prayer,
     });
+    console.log(`🚀 | onAddPrayer | resp:`, resp)
     refresh();
 }
 </script>

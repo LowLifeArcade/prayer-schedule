@@ -1,8 +1,11 @@
 export default defineEventHandler(async (event) => {
+    console.log({ reached: '/api/prayer.post.ts' });
     try {
-        const { title, body } = await readBody(event) || {};
+        const { title, body } = (await readBody(event)) || {};
         const db = useDatabase();
-        const { user } = await getUserSession(event) || {};
+        console.log({ db });
+        const { user } = (await getUserSession(event)) || {};
+        console.log({ user });
 
         if (!user) {
             throw createError({ statusCode: 401, message: 'Unauthorized' });
