@@ -109,10 +109,11 @@ const { data, pending, refresh } = useFetch('/api/prayers');
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 
 const showAddPrayerForm = ref(false);
-const prayer = reactive({
+const initialState = () => ({
     title: null,
     body: null,
 });
+const prayer = reactive(initialState());
 
 async function onLogout() {
     await clear();
@@ -125,7 +126,8 @@ async function onAddPrayer() {
             method: 'post',
             body: prayer,
         });
-
+        showAddPrayerForm.value = false;
+        Object.assign(prayer, initialState());
         refresh();
     } catch (error) {
         console.error({ error });
