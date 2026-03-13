@@ -9,7 +9,7 @@
                 <div class="name">
                     <span>{{ user.given_name }}</span>
                     <div class="log-out">
-                        <button @click="clear">Log Out</button>
+                        <button @click="onLogout">Log Out</button>
                     </div>
                 </div>
                 <img
@@ -19,12 +19,12 @@
                     width="50"
                 />
             </div>
-            <a
+            <div
                 v-else
                 class="login"
-                href="/auth/google"
-                >Login with Google</a
             >
+                <button @click="onLogin">Login with Google</button>
+            </div>
         </div>
         <ul class="prayers">
             <li v-for="{ title, body } in data">
@@ -82,7 +82,7 @@
                 />
             </label>
             <button
-                class="btn cancel "
+                class="btn cancel"
                 @click="showAddPrayerForm = false"
             >
                 Cancel
@@ -99,7 +99,7 @@
 
 <script setup>
 const { data, pending, refresh } = useFetch('/api/prayers');
-const { loggedIn, user, fetch: refreshSession, clear } = useUserSession();
+const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 
 const showAddPrayerForm = ref(false);
 const prayer = reactive({
@@ -107,12 +107,21 @@ const prayer = reactive({
     body: null,
 });
 
+async function onLogin() {
+    openInPopup('/auth/google');
+    refresh();
+}
+
+async function onLogout() {
+    await clear();
+    refresh();
+}
+
 async function onAddPrayer() {
     const resp = await $fetch('/api/prayer', {
         method: 'post',
         body: prayer,
     });
-    console.log(`🚀 | onAddPrayer | resp:`, resp)
     refresh();
 }
 </script>
@@ -123,10 +132,6 @@ async function onAddPrayer() {
         padding-block: 1rem;
         display: flex;
         justify-content: space-between;
-
-        /* h1 {
-            margin-bottom: 2rem;
-        } */
 
         .user {
             display: flex;
@@ -146,10 +151,11 @@ async function onAddPrayer() {
                 border-radius: 10rem;
             }
         }
-        
+
         .login {
             display: grid;
             place-items: center;
+            font-weight: 600;
         }
     }
 
