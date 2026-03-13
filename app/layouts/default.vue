@@ -4,8 +4,10 @@
     </div>
 </template>
 
-<script>
-export default {};
+<script setup>
+const { theme, applyTheme } = useTheme()
+
+onMounted(() => applyTheme(theme.value))
 </script>
 
 <style>

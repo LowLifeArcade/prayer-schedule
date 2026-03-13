@@ -9,32 +9,35 @@
             <div class="logo">
                 <h1>Prayer List</h1>
             </div>
-            <div
-                v-if="loggedIn"
-                class="user"
-            >
-                <div class="name">
-                    <span>{{ user.given_name }}</span>
-                    <div class="log-out">
-                        <button @click="onLogout">Log Out</button>
-                    </div>
-                </div>
-                <img
-                    :src="user.picture"
-                    alt=""
-                    height="50"
-                    width="50"
-                />
-            </div>
-            <div
-                v-else
-                class="login"
-            >
-                <a
-                    class="login"
-                    href="/auth/google"
-                    >Login with Google</a
+            <div class="right-section">
+                <div
+                    v-if="loggedIn"
+                    class="user"
                 >
+                    <div class="name-section">
+                        <span>{{ user.given_name }}</span>
+                        <div class="log-out">
+                            <button @click="onLogout">Log Out</button>
+                        </div>
+                    </div>
+                    <img
+                        :src="user.picture"
+                        alt=""
+                        height="50"
+                        width="50"
+                    />
+                </div>
+                <div
+                    v-else
+                    class="login"
+                >
+                    <a
+                        class="login"
+                        href="/auth/google"
+                        >Login</a
+                    >
+                </div>
+                <ThemeToggle />
             </div>
         </div>
         <ul
@@ -216,12 +219,17 @@ async function onDelete(id) {
         display: flex;
         justify-content: space-between;
 
+        .right-section {
+            display: grid;
+            gap: 2rem;
+        }
+
         .user {
             display: flex;
             align-items: center;
             gap: 2rem;
 
-            .name {
+            .name-section {
                 display: grid;
                 gap: 0.5rem;
 
