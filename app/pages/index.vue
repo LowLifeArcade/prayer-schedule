@@ -1,5 +1,10 @@
 <template>
     <div class="v-prayers container">
+        <div
+            v-if="openMenuIndex"
+            class="overlay"
+            @click="openMenuIndex = null"
+        ></div>
         <div class="top-bar">
             <h1>Prayer List</h1>
             <div
@@ -34,9 +39,28 @@
             v-if="loggedIn"
             class="prayers"
         >
-            <li v-for="{ title, body } in data">
+            <li v-for="({ title, body }, i) in data">
                 <div class="prayer">
-                    <h3>{{ title }}</h3>
+                    <div class="title">
+                        <h3>{{ title }}</h3>
+                        <span class="ctx-menu-section">
+                            <img
+                                src="/assets/imgs/dots-vr.svg"
+                                alt=""
+                                height="27"
+                                width="27"
+                                @click="toggleMenu(i)"
+                            />
+                            <div
+                                v-if="openMenuIndex === i"
+                                class="ctx-menu"
+                            >
+                                <ul>
+                                    <li>Remove</li>
+                                </ul>
+                            </div>
+                        </span>
+                    </div>
                     <p>{{ body }}</p>
                 </div>
             </li>
@@ -114,6 +138,11 @@ const initialState = () => ({
     body: null,
 });
 const prayer = reactive(initialState());
+const openMenuIndex = ref();
+
+const toggleMenu = (i) => {
+    openMenuIndex.value = openMenuIndex.value === i ? null : i;
+};
 
 async function onLogout() {
     await clear();
@@ -137,6 +166,17 @@ async function onAddPrayer() {
 
 <style scoped>
 .v-prayers {
+    .overlay {
+        position: absolute;
+        background-color: gray;
+        opacity: .2;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
     .top-bar {
         padding-block: 1rem;
         display: flex;
@@ -192,8 +232,27 @@ async function onAddPrayer() {
         .prayer {
             border: 1px solid lightgray;
 
-            h3 {
+            .title {
                 margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                .ctx-menu-section {
+                    position: relative;
+                    cursor: pointer;
+
+                    .ctx-menu {
+                        border-radius: .8rem;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        box-shadow: 0.1rem 0.1rem 0.4rem rgba(0 0 0 / 0.3);
+                        padding: 1rem;
+                        z-index: 1;
+                        background: white;
+                    }
+                }
             }
 
             p {
