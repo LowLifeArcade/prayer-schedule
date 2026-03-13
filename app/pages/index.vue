@@ -23,10 +23,17 @@
                 v-else
                 class="login"
             >
-                <button @click="onLogin">Login with Google</button>
+                <a
+                    class="login"
+                    href="/auth/google"
+                    >Login with Google</a
+                >
             </div>
         </div>
-        <ul class="prayers">
+        <ul
+            v-if="loggedIn"
+            class="prayers"
+        >
             <li v-for="{ title, body } in data">
                 <div class="prayer">
                     <h3>{{ title }}</h3>
@@ -107,22 +114,22 @@ const prayer = reactive({
     body: null,
 });
 
-async function onLogin() {
-    openInPopup('/auth/google');
-    refresh();
-}
-
 async function onLogout() {
     await clear();
     refresh();
 }
 
 async function onAddPrayer() {
-    const resp = await $fetch('/api/prayer', {
-        method: 'post',
-        body: prayer,
-    });
-    refresh();
+    try {
+        await $fetch('/api/prayer', {
+            method: 'post',
+            body: prayer,
+        });
+
+        refresh();
+    } catch (error) {
+        console.error({ error });
+    }
 }
 </script>
 
