@@ -1,1 +1,52 @@
 @import './base.css';
+
+:root {
+    --color-bg: #f1f1f1;
+    --color-bg-2: #f0eff4;
+    --color-text: #111111;
+    --color-text-muted: #666666;
+    --color-surface: #f5f5f5;
+    --color-surface-2: #b3b3b8;
+    --color-border: #e0e0e0;
+    --color-border-2: #c2c2c4;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: #29292a;
+        --color-bg-2: #202021;
+        --color-text: #f5f5f5;
+        --color-text-muted: #999999;
+        --color-surface: #1e1e1e;
+        --color-surface-2: #39393a;
+        --color-border: #2e2e2e;
+        --color-border-2: #737474;
+    }
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+button {
+    color: var(--color-text);
+}
+
+.danger {
+    color: #f85249;
+}
+
+.logo {
+    color: white;
+    background-color: firebrick;
+    padding: 0.6rem 2rem;
+    border-radius: 3px;
+    box-shadow:
+        -1px -1px 1px rgba(255, 0, 0, 1.85),
+        0 0 2px rgba(0, 0, 0, 0.85),
+        0 0 3px rgba(0, 0, 0, 0.55),
+        0 0 8px rgba(0, 0, 0, 0.35),
+        14px 14px 28px rgba(0, 0, 0, 0.55);
+    transform: rotate(-2deg);
+}

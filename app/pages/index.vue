@@ -6,7 +6,9 @@
             @click="openMenuIndex = null"
         ></div>
         <div class="top-bar">
-            <h1>Prayer List</h1>
+            <div class="logo">
+                <h1>Prayer List</h1>
+            </div>
             <div
                 v-if="loggedIn"
                 class="user"
@@ -39,17 +41,23 @@
             v-if="loggedIn"
             class="prayers"
         >
-            <li v-for="({ title, body }, i) in data">
+            <li v-for="({ title, body, id }, i) in data">
                 <div class="prayer">
                     <div class="title">
                         <h3>{{ title }}</h3>
                         <span class="ctx-menu-section">
-                            <img
-                                src="/assets/imgs/dots-vr.svg"
+                            <Dots
+                                class="ctx-menu-btn"
                                 alt=""
                                 height="27"
                                 width="27"
                                 @click="toggleMenu(i)"
+                                @drag="(e) => console.log('drag', e)"
+                                @dragend="(e) => console.log('drag ended', e)"
+                                @dragenter="console.log('has entered a droppable location')"
+                                @dragleave="console.log('has left a droppable location')"
+                                @dragover="console.log('is over a droppable location')"
+                                @drop="(e) => console.log('droped', e)"
                             />
                             <div
                                 v-if="openMenuIndex === i"
@@ -57,6 +65,12 @@
                             >
                                 <ul>
                                     <li>Remove</li>
+                                    <li
+                                        class="danger"
+                                        @click="onDelete(id)"
+                                    >
+                                        Delete
+                                    </li>
                                 </ul>
                             </div>
                         </span>
@@ -76,6 +90,7 @@
                         width="30"
                         height="30"
                         viewBox="0 0 50 50"
+                        fill="currentColor"
                     >
                         <path
                             d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"
@@ -129,6 +144,8 @@
 </template>
 
 <script setup>
+import Dots from '~/components/Dots.vue';
+
 const { data, pending, refresh } = useFetch('/api/prayers');
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 
@@ -143,6 +160,8 @@ const openMenuIndex = ref();
 const toggleMenu = (i) => {
     openMenuIndex.value = openMenuIndex.value === i ? null : i;
 };
+
+const closeMenu = () => (openMenuIndex.value = null);
 
 async function onLogout() {
     await clear();
@@ -162,14 +181,29 @@ async function onAddPrayer() {
         console.error({ error });
     }
 }
+
+async function onDelete(id) {
+    try {
+        const resp = await $fetch('/api/prayer', {
+            method: 'delete',
+            body: {
+                id,
+            },
+        });
+    } catch (error) {
+        console.log({ error });
+    }
+
+    closeMenu();
+}
 </script>
 
 <style scoped>
 .v-prayers {
     .overlay {
         position: absolute;
-        background-color: gray;
-        opacity: .2;
+        background-color: var(--color-bg-2);
+        opacity: 0.2;
         top: 0;
         left: 0;
         right: 0;
@@ -178,7 +212,7 @@ async function onAddPrayer() {
     }
 
     .top-bar {
-        padding-block: 1rem;
+        padding-block: 2rem;
         display: flex;
         justify-content: space-between;
 
@@ -230,7 +264,8 @@ async function onAddPrayer() {
         }
 
         .prayer {
-            border: 1px solid lightgray;
+            border: 1px solid var(--color-border-2);
+            background-color: var(--color-surface);
 
             .title {
                 margin-bottom: 1rem;
@@ -240,17 +275,29 @@ async function onAddPrayer() {
 
                 .ctx-menu-section {
                     position: relative;
-                    cursor: pointer;
+
+                    .ctx-menu-btn {
+                        cursor: pointer;
+                    }
 
                     .ctx-menu {
-                        border-radius: .8rem;
+                        border-radius: 0.8rem;
                         position: absolute;
                         top: 0;
                         right: 0;
                         box-shadow: 0.1rem 0.1rem 0.4rem rgba(0 0 0 / 0.3);
                         padding: 1rem;
                         z-index: 1;
-                        background: white;
+                        background: var(--color-surface-2);
+
+                        ul {
+                            display: grid;
+                            gap: 1rem;
+
+                            li {
+                                cursor: pointer;
+                            }
+                        }
                     }
                 }
             }
@@ -271,11 +318,11 @@ async function onAddPrayer() {
             display: grid;
             place-items: center;
             height: 100%;
-            background-color: hsl(0, 0%, 89%);
-            transition: background-color 200ms ease-in-out;
+            background-color: var(--color-surface-2);
+            transition: filter 200ms ease-in-out;
 
             &:hover {
-                background-color: hsl(0, 0%, 81%);
+                filter: brightness(1.5);
             }
         }
     }

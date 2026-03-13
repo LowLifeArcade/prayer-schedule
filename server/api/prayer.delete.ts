@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
     try {
-        const { title, body } = (await readBody(event)) || {};
+        const { id } = (await readBody(event)) || {};
         const db = useDatabase();
         const { user } = (await getUserSession(event)) || {};
 
@@ -9,15 +9,15 @@ export default defineEventHandler(async (event) => {
         }
 
         const { error, success, lastInsertRowid } = await db.sql`
-        INSERT INTO prayers (title, body, user_id) VALUES (${title}, ${body}, ${user.sub})
-    `;
+            UPDATE prayers SET deleted = '1' WHERE id = ${id}
+        `;
 
         if (!success) {
             console.error({ error });
             throw createError({ message: 'could not add prayer', statusCode: 422 });
         }
 
-        return { message: 'success', id: lastInsertRowid, title, body };
+        return { message: 'success', id: lastInsertRowid };
     } catch (error) {
         console.log({ error });
         throw createError({ message: 'could not add prayer', statusCode: 400 });
