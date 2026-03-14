@@ -4,11 +4,18 @@
     --color-bg: #f1f1f1;
     --color-bg-2: #f0eff4;
     --color-text: #111111;
+    --color-text-alt: #f5f5f5;
     --color-text-muted: #666666;
     --color-surface: #f5f5f5;
-    --color-surface-2: #b3b3b8;
+    --color-surface-2: #d7d7da;
     --color-border: #e0e0e0;
     --color-border-2: #c2c2c4;
+    --action: unset;
+    --action-text: var(--color-text);
+    --danger: #f85249;
+    --danger-bg: var(--danger);
+    --danger-text: var(--color-text-alt);
+    --danger-border: #c9433c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,11 +23,16 @@
         --color-bg: #29292a;
         --color-bg-2: #202021;
         --color-text: #f5f5f5;
+        --color-text-alt: #111111;
         --color-text-muted: #999999;
         --color-surface: #1e1e1e;
         --color-surface-2: #39393a;
         --color-border: #2e2e2e;
         --color-border-2: #737474;
+        --danger-bg: unset;
+        --danger-text: var(--danger);
+        --action: var(--color-text);
+        --action-text: var(--color-text-alt);
     }
 }
 
@@ -28,11 +40,16 @@
     --color-bg: #29292a;
     --color-bg-2: #202021;
     --color-text: #f5f5f5;
+    --color-text-alt: #111111;
     --color-text-muted: #999999;
     --color-surface: #1e1e1e;
     --color-surface-2: #39393a;
     --color-border: #2e2e2e;
     --color-border-2: #737474;
+    --danger-text: var(--danger);
+    --danger-bg: unset;
+    --action: var(--color-text-alt);
+    --action-text: var(--color-text-alt);
 }
 
 body {
@@ -44,8 +61,15 @@ button {
     color: var(--color-text);
 }
 
+input,
+textarea {
+    background-color: var(--color-surface-2);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-2);
+}
+
 .danger {
-    color: #f85249;
+    color: var(--danger);
 }
 
 .logo {
@@ -63,4 +87,32 @@ button {
         0 0 8px rgba(0, 0, 0, 0.35),
         14px 14px 28px rgba(0, 0, 0, 0.55);
     transform: rotate(-2deg);
+}
+
+.btn {
+    padding: 1.5rem 2rem;
+    border-radius: 0.7rem;
+    transition: filter 200ms ease-in-out;
+
+    &.form {
+        background: var(--action);
+        border: 2px solid var(--color-border-2);
+        color: var(--action-text);
+        font-weight: 700;
+
+        &:hover {
+            filter: brightness(0.7);
+        }
+    }
+
+    &.cancel {
+        font-weight: 700;
+        border: 2px solid var(--danger-border);
+        background-color: var(--danger-bg);
+        color: var(--danger-text);
+
+        &:hover {
+            filter: brightness(0.7);
+        }
+    }
 }
