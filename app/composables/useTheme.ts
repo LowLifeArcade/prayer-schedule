@@ -2,10 +2,11 @@ export const useTheme = () => {
     const theme = useCookie('theme', { default: () => 'system' });
 
     const applyTheme = (value: string) => {
-        const isDark =
-            value === 'dark' || (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        if (value === 'system') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', value);
+        }
     };
 
     const setTheme = (value: 'light' | 'dark' | 'system') => {

@@ -5,9 +5,15 @@
 </template>
 
 <script setup>
-const { theme, applyTheme } = useTheme()
+const { theme, applyTheme } = useTheme();
 
-onMounted(() => applyTheme(theme.value))
+useHead({
+    htmlAttrs: {
+        'data-theme': theme.value,
+    },
+});
+
+onMounted(() => applyTheme(theme.value));
 </script>
 
 <style>
