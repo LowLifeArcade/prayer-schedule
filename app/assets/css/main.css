@@ -61,11 +61,13 @@ button {
     color: var(--color-text);
 }
 
-input,
-textarea {
-    background-color: var(--color-surface-2);
-    color: var(--color-text);
-    border: 1px solid var(--color-border-2);
+form {
+    input,
+    textarea {
+        background-color: var(--color-surface-2);
+        color: var(--color-text);
+        border: 1px solid var(--color-border-2);
+    }
 }
 
 .danger {
@@ -87,6 +89,14 @@ textarea {
         0 0 8px rgba(0, 0, 0, 0.35),
         14px 14px 28px rgba(0, 0, 0, 0.55);
     transform: rotate(-2deg);
+    transition: transform 50ms ease-in-out;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+
+    &:active {
+        transform: scale(0.9);
+    }
 }
 
 .btn {

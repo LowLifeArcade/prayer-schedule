@@ -5,8 +5,35 @@
             class="overlay"
             @click="openMenuIndex = null"
         ></div>
+        <div
+            v-if="showBSOD"
+            class="description"
+            @click="bsodRef.focus()"
+        >
+            <pre>
+C:\WINDOWS>
+C:\Documents and Settings\{{ user?.given_name || 'anonymous' }}>
+
+A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +
+00010E36. The current application will be terminated.
+
+*  Press any key to terminate the current application.
+*  Press CTRL+ALT+DEL again to restart your computer. You will
+   lose any unsaved information in all applications.
+
+Press any key to continue _
+            </pre>
+            <input
+                name=""
+                ref="bsodRef"
+                @keydown="e => showBSOD = e.key !== 'Escape'"
+            ></input>
+        </div>
         <div class="top-bar">
-            <div class="logo">
+            <div
+                class="logo"
+                @click="onLogoClick"
+            >
                 <h1>Prayer List</h1>
             </div>
             <div class="right-section">
@@ -147,6 +174,8 @@ const initialState = () => ({
 });
 const prayer = reactive(initialState());
 const openMenuIndex = ref();
+const showBSOD = ref();
+const bsodRef = ref(null);
 
 const toggleMenu = (i) => {
     openMenuIndex.value = openMenuIndex.value === i ? null : i;
@@ -157,6 +186,12 @@ const closeMenu = () => (openMenuIndex.value = null);
 async function onLogout() {
     await clear();
     refresh();
+}
+
+async function onLogoClick() {
+    showBSOD.value = true;
+    await nextTick()
+    bsodRef.value?.focus();
 }
 
 async function onAddPrayer() {
@@ -200,6 +235,30 @@ async function onDelete(id) {
         right: 0;
         bottom: 0;
         z-index: 1;
+    }
+
+    .description {
+        position: absolute;
+        z-index: 100;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* background-color: #0000AA; */
+        color: white;
+        background: blue;
+
+        input {
+            background: blue;
+            border: unset;
+            color: white;
+            width: 100%;
+
+            &:focus {
+                border: unset;
+                outline: unset;
+            }
+        }
     }
 
     .top-bar {
