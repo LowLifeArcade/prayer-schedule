@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
     const { id } = await readBody(event);
+    console.log({ id })
     const db = useDatabase();
     const { user } = await getUserSession(event);
 
@@ -16,7 +17,6 @@ export default defineEventHandler(async (event) => {
             console.error({ error });
             throw createError({ message: 'could not delete prayer', statusCode: 422 });
         }
-        console.log({ changes, rows });
     } catch (error) {
         console.error({ error });
         throw createError({ message: 'could not delete prayer', statusCode: 422 });

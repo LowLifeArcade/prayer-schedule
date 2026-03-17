@@ -5,7 +5,7 @@ export default defineNitroPlugin((nitroApp) => {
             return;
         }
 
-        if ((error.statusCode && error.statusCode < 500) || (error.statusCode && error.statusMessage)) {
+        if ((error.statusCode && error.statusCode < 500)) {
             return;
         }
 
