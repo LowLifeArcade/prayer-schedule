@@ -1,5 +1,4 @@
 export default defineEventHandler(async (event) => {
-    return { message: 'success' };
     try {
         const db = useDatabase();
         const { user } = await getUserSession(event);
@@ -8,6 +7,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const { id } = await readBody(event);
+        return { message: 'success2' };
         const { error, success, changes, rows } = await db.sql`
             UPDATE prayers SET deleted_at = CURRENT_TIMESTAMP WHERE id = ${id}
         `;
