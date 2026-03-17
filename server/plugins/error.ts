@@ -5,17 +5,19 @@ export default defineNitroPlugin((nitroApp) => {
             return;
         }
 
-        if ((error.statusCode && error.statusCode < 500)) {
+        if (error.statusCode && error.statusCode < 500) {
             return;
         }
 
-        sendError(
-            event,
-            createError({
-                statusCode: 500,
-                statusMessage: 'Internal Server Error',
-                message: error.message,
-            }),
-        );
+        console.error({ error, message: 'uncaught' });
+
+        // sendError(
+        //     event,
+        //     createError({
+        //         statusCode: 500,
+        //         statusMessage: 'Internal Server Error',
+        //         message: error.message,
+        //     }),
+        // );
     });
 });
