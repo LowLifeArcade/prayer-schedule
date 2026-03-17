@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
             throw createError({ statusCode: 401, message: 'Unauthorized' });
         }
 
-        const { id } = await readBody(event);
         return { message: 'success2' };
+        const { id } = await readBody(event);
         const { error, success, changes, rows } = await db.sql`
             UPDATE prayers SET deleted_at = CURRENT_TIMESTAMP WHERE id = ${id}
         `;
