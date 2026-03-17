@@ -1,15 +1,12 @@
 export default defineEventHandler(async (event) => {
-    const { id } = await readBody(event);
-    console.log({ id });
-    const db = useDatabase();
-    const { user } = await getUserSession(event);
-
-    if (!user) {
-        throw createError({ statusCode: 401, message: 'Unauthorized' });
-    }
-
-    console.log({ user });
     try {
+        const db = useDatabase();
+        const { user } = await getUserSession(event);
+        if (!user) {
+            throw createError({ statusCode: 401, message: 'Unauthorized' });
+        }
+
+        const { id } = await readBody(event);
         const { error, success, changes, rows } = await db.sql`
             UPDATE prayers SET deleted_at = CURRENT_TIMESTAMP WHERE id = ${id}
         `;
