@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS prayers (
     body TEXT,
     image_url TEXT,
     user_id TEXT NOT NULL,
-    deleted INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

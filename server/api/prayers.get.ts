@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     const db = useDatabase();
 
     const { rows, error, success } = await db.sql`
-        SELECT * FROM prayers where user_id = ${session.user.sub}
+        SELECT * FROM prayers where user_id = ${session.user.sub} and deleted_at IS NULL
     `;
 
     if (!success) {

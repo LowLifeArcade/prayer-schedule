@@ -221,6 +221,7 @@ async function onDelete(id) {
     }
 
     closeMenu();
+    refresh();
 }
 </script>
 

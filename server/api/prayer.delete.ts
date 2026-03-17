@@ -7,14 +7,20 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 401, message: 'Unauthorized' });
     }
 
-    const { error, success, lastInsertRowid } = await db.sql`
-            UPDATE prayers SET deleted = '1' WHERE id = ${id}
+    try {
+        const { error, success, changes, rows } = await db.sql`
+            UPDATE prayers SET deleted_at = CURRENT_TIMESTAMP WHERE id = ${id}
         `;
 
-    if (!success) {
+        if (!success) {
+            console.error({ error });
+            throw createError({ message: 'could not delete prayer', statusCode: 422 });
+        }
+        console.log({ changes, rows });
+    } catch (error) {
         console.error({ error });
-        throw createError({ message: 'could not add prayer', statusCode: 422 });
+        throw createError({ message: 'could not delete prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id: lastInsertRowid };
+    return { message: 'success' };
 });
