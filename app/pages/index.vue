@@ -209,7 +209,6 @@ async function onAddPrayer() {
 }
 
 async function onDelete(id) {
-    console.log(`🚀 | onDelete | id:`, id)
     try {
         const resp = await $fetch('/api/prayer', {
             method: 'delete',
@@ -217,6 +216,7 @@ async function onDelete(id) {
                 id,
             },
         });
+        console.log(`🚀 | onDelete | resp:`, resp)
     } catch (error) {
         console.log({ error });
     }

@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+    return { message: 'success' };
     try {
         const db = useDatabase();
         const { user } = await getUserSession(event);
