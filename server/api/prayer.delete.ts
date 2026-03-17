@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
             throw createError({ statusCode: 401, message: 'Unauthorized' });
         }
 
-        const body = await readBody(event);
+        console.log({ event });
+        const body = await readBody(event) || {};
         const id = body?.id;
         // return { message: 'success2', id };
         if (!id) {
