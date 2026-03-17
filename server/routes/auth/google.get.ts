@@ -1,3 +1,5 @@
+import { ONE_DAY, ONE_HOUR } from "~~/server/constants/time";
+
 // server/api/auth/google.get.ts
 export default defineOAuthGoogleEventHandler({
     async onError(event, error) {
@@ -8,7 +10,7 @@ export default defineOAuthGoogleEventHandler({
         const db = useDatabase();
 
         const { success, error, lastInsertRowid } = await db.sql`
-            INSERT INTO users (sub, name, email, avatar) 
+            INSERT INTO users (sub, name, email, avatar)
             VALUES (${user.sub}, ${user.name}, ${user.email}, ${user.picture})
             ON CONFLICT(sub) DO UPDATE SET
                 name = excluded.name,
@@ -21,7 +23,7 @@ export default defineOAuthGoogleEventHandler({
             return sendRedirect(event, '/');
         }
 
-        await setUserSession(event, { user });
+        await setUserSession(event, { user }, { maxAge: ONE_HOUR });
         return sendRedirect(event, '/');
     },
 });

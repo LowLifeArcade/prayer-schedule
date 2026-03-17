@@ -7,9 +7,14 @@ export default defineEventHandler(async (event) => {
 
     const db = useDatabase();
 
-    const { rows } = await db.sql`
+    const { rows, error, success } = await db.sql`
         SELECT * FROM prayers where user_id = ${session.user.sub}
     `;
+
+    if (!success) {
+        console.error({ error });
+        throw createError({ message: 'There was a problem getting prayers', statusCode: 400 });
+    }
 
     return rows;
 });
