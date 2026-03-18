@@ -216,7 +216,6 @@ async function onDelete(id) {
                 id,
             },
         });
-        console.log(`🚀 | onDelete | resp:`, resp)
     } catch (error) {
         console.log({ error });
     }
@@ -327,7 +326,7 @@ async function onDelete(id) {
             .title {
                 margin-bottom: 1rem;
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: space-between;
 
                 .ctx-menu-section {
