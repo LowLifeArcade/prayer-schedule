@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
         console.log({ event });
         const body = await readBody(event) || {};
         const id = body?.id;
+        console.log({ id, message: 'some id to check::'})
         // return { message: 'success2', id };
         if (!id) {
             throw createError({ statusCode: 422, statusMessage: 'no id given' });
