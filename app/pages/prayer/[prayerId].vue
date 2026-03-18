@@ -3,8 +3,16 @@
         v-if="loggedIn"
         class="v-prayer"
     >
-        <h1>{{ data.title }}</h1>
-        <p>
+        <div class="top container">
+            <button
+                class="back-btn"
+                @click="router.back()"
+            >
+                < Go back
+            </button>
+        </div>
+        <h1 class="container">{{ data.title }}</h1>
+        <p class="container">
             {{ data.body }}
         </p>
     </div>
@@ -21,5 +29,12 @@ const router = useRouter();
 
 <style>
 .v-prayer {
+    h1 {
+        margin-bottom: 1rem;
+    }
+
+    .back-btn {
+        cursor: pointer;
+    }
 }
 </style>

@@ -73,7 +73,10 @@ Press any key to continue _
         >
             <li v-for="({ title, preview, id }, i) in data">
                 <div class="prayer">
-                    <div class="title" @click="onPrayerClick(id)">
+                    <div
+                        class="title"
+                        @click="onPrayerClick(id)"
+                    >
                         <h3>{{ title }}</h3>
                         <span class="ctx-menu-section">
                             <SvgDots
@@ -94,6 +97,9 @@ Press any key to continue _
                                 class="ctx-menu"
                             >
                                 <ul>
+                                    <li @click="onPrayerClick(id)">
+                                        Open
+                                    </li>
                                     <li
                                         class="delete danger"
                                         @click="onDelete(id)"
@@ -104,7 +110,7 @@ Press any key to continue _
                             </div>
                         </span>
                     </div>
-                    <p>{{ preview }}</p>
+                    <p @click="onPrayerClick(id)">{{ preview }}</p>
                 </div>
             </li>
             <li v-if="!showAddPrayerForm">
@@ -337,6 +343,7 @@ async function onDelete(id) {
                 display: flex;
                 align-items: flex-start;
                 justify-content: space-between;
+                cursor: pointer;
 
                 .ctx-menu-section {
                     position: relative;
@@ -381,6 +388,7 @@ async function onDelete(id) {
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
+                cursor: pointer;
             }
         }
 
