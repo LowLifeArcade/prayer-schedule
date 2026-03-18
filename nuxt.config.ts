@@ -33,6 +33,13 @@ export default defineNuxtConfig({
             deployConfig: true,
             nodeCompat: true,
         },
+        typescript: {
+            tsConfig: {
+                compilerOptions: {
+                    types: ['@cloudflare/workers-types'],
+                },
+            },
+        },
     },
 
     modules: ['nitro-cloudflare-dev', 'nuxt-auth-utils'],

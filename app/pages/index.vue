@@ -71,7 +71,7 @@ Press any key to continue _
             v-if="loggedIn && !showAddPrayerForm"
             class="prayers"
         >
-            <li v-for="({ title, body, id }, i) in data">
+            <li v-for="({ title, preview, id }, i) in data">
                 <div class="prayer">
                     <div class="title">
                         <h3>{{ title }}</h3>
@@ -94,18 +94,17 @@ Press any key to continue _
                                 class="ctx-menu"
                             >
                                 <ul>
-                                    <li>Remove</li>
                                     <li
-                                        class="danger"
+                                        class="delete danger"
                                         @click="onDelete(id)"
                                     >
-                                        Delete
+                                        Delete <SvgTrash />
                                     </li>
                                 </ul>
                             </div>
                         </span>
                     </div>
-                    <p>{{ body }}</p>
+                    <p>{{ preview }}</p>
                 </div>
             </li>
             <li v-if="!showAddPrayerForm">
@@ -352,6 +351,12 @@ async function onDelete(id) {
 
                             li {
                                 cursor: pointer;
+                            }
+
+                            .delete {
+                                display: flex;
+                                align-items: center;
+                                gap: 1rem;
                             }
                         }
                     }
