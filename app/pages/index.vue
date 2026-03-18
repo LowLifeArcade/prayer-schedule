@@ -73,7 +73,7 @@ Press any key to continue _
         >
             <li v-for="({ title, preview, id }, i) in data">
                 <div class="prayer">
-                    <div class="title">
+                    <div class="title" @click="onPrayerClick(id)">
                         <h3>{{ title }}</h3>
                         <span class="ctx-menu-section">
                             <SvgDots
@@ -165,6 +165,7 @@ Press any key to continue _
 <script setup>
 const { data, pending, refresh } = useFetch('/api/prayers');
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
+const router = useRouter();
 
 const showAddPrayerForm = ref(false);
 const initialState = () => ({
@@ -185,6 +186,15 @@ const closeMenu = () => (openMenuIndex.value = null);
 async function onLogout() {
     await clear();
     refresh();
+}
+
+function onPrayerClick(prayerId) {
+    router.push({
+        name: 'prayer-prayerId',
+        params: {
+            prayerId,
+        }
+    })
 }
 
 async function onLogoClick() {
