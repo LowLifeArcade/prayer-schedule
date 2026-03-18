@@ -1,7 +1,7 @@
 <template>
     <div class="v-prayers container">
         <div
-            v-if="openMenuIndex"
+            v-if="openMenuIndex != null"
             class="overlay"
             @click="openMenuIndex = null"
         ></div>
@@ -194,6 +194,7 @@ async function onLogout() {
 }
 
 function onPrayerClick(prayerId) {
+    closeMenu();
     router.push({
         name: 'prayer-prayerId',
         params: {
