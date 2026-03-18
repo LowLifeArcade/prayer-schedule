@@ -212,7 +212,7 @@ async function onDelete(id) {
     try {
         const resp = await $fetch('/api/prayer', {
             method: 'delete',
-            body: {
+            query: {
                 id,
             },
         });
