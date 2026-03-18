@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
         }
 
         console.log({ event });
-        const body = await readBody(event) || {};
-        const id = body?.id;
+        // const body = await readBody(event) || {};
+        const id = 9;
         console.log({ id, message: 'some id to check::'})
         // return { message: 'success2', id };
         if (!id) {
