@@ -75,9 +75,8 @@ Press any key to continue _
                 <div class="prayer">
                     <div
                         class="title"
-                        @click="onPrayerClick(id)"
                     >
-                        <h3>{{ title }}</h3>
+                        <h3 @click="onPrayerClick(id)">{{ title }}</h3>
                         <span class="ctx-menu-section">
                             <SvgDots
                                 class="ctx-menu-btn"
@@ -343,7 +342,11 @@ async function onDelete(id) {
                 display: flex;
                 align-items: flex-start;
                 justify-content: space-between;
-                cursor: pointer;
+
+                h3 {
+                    cursor: pointer;
+                    width: 100%;
+                }
 
                 .ctx-menu-section {
                     position: relative;
