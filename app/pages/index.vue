@@ -414,7 +414,7 @@ async function onDelete(id) {
         display: flex;
         flex-direction: column;
         gap: 3rem;
-        width: 800px;
+        max-width: 800px;
         margin-inline: auto;
 
         label {
