@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         message: 'posting uuid',
         type: 'post',
         prayerId,
-        user: user?.uid,
+        user: user?.uid || 'none',
         title,
         body,
     });
