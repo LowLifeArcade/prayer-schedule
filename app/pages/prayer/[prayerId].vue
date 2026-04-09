@@ -11,9 +11,9 @@
                 < Go back
             </button>
         </div>
-        <h1 class="container">{{ data.title }}</h1>
+        <h1 class="container">{{ data?.title }}</h1>
         <p class="container">
-            {{ data.body }}
+            {{ data?.body }}
         </p>
     </div>
 </template>
