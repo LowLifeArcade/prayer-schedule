@@ -1,7 +1,7 @@
 -- Migration number: 0003 	 2026-03-18T00:34:38.964Z
 
 CREATE TABLE IF NOT EXISTS prayer_bodies (
-    prayer_id INTEGER PRIMARY KEY REFERENCES prayers(id),
+    prayer_id TEXT PRIMARY KEY REFERENCES prayers(id),
     body TEXT NOT NULL
 );
 

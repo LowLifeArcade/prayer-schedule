@@ -19,6 +19,8 @@
 </template>
 
 <script setup>
+// use lib to adjust textwrap flow on the fly for when user pinch zooms
+// https://www.npmjs.com/package/@chenglou/pretext
 const route = useRoute();
 const prayerId = route.params.prayerId;
 const { data, pending, refresh } = useFetch(`/api/prayer/${prayerId}`);

@@ -8,6 +8,7 @@ declare module '#auth-utils' {
         picture: string;
         email: string;
         email_verified: true;
+        uid: string;
     }
 
     interface UserSession {

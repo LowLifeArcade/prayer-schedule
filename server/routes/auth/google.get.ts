@@ -1,4 +1,7 @@
-import { ONE_DAY, ONE_HOUR } from "~~/server/constants/time";
+import type { D1Database } from '@cloudflare/workers-types';
+import { ONE_DAY, ONE_HOUR } from '~~/server/constants/time';
+import { uuidv7 } from '~~/server/utils/uuid';
+import { OAUTH } from '~~/server/constants/auth';
 
 // server/api/auth/google.get.ts
 export default defineOAuthGoogleEventHandler({
@@ -8,22 +11,57 @@ export default defineOAuthGoogleEventHandler({
     },
     async onSuccess(event, { user }) {
         const db = useDatabase();
+        const d1 = (await db.getInstance()) as D1Database;
 
-        const { success, error, lastInsertRowid } = await db.sql`
-            INSERT INTO users (sub, name, email, avatar)
-            VALUES (${user.sub}, ${user.name}, ${user.email}, ${user.picture})
-            ON CONFLICT(sub) DO UPDATE SET
-                name = excluded.name,
-                email = excluded.email,
-                avatar = excluded.avatar
-        `;
+        try {
+            const existing = await db.sql`
+                SELECT u.uid
+                FROM user_identities ui
+                JOIN users u ON u.uid = ui.user_id
+                WHERE ui.provider = ${OAUTH.google}
+                AND ui.provider_uid = ${user.sub}
+            `;
 
-        if (!success) {
+            const uid = existing.rows?.[0]?.uid as string;
+            if (uid) {
+                await db.sql`
+                    UPDATE users
+                    SET name = ${user.name},
+                        email = ${user.email},
+                        avatar_url = ${user.picture}
+                    WHERE uid = ${uid}
+                `;
+            } else {
+                try {
+                    const newUid = uuidv7();
+                    await d1.batch([
+                        d1
+                            .prepare(
+                                `
+                                    INSERT INTO users (uid, name, email, avatar_url)
+                                    VALUES (?, ?, ?, ?)
+                                `,
+                            )
+                            .bind(newUid, user.name, user.email, user.picture),
+                        d1
+                            .prepare(
+                                `
+                                    INSERT INTO user_identities (user_id, provider, provider_uid)
+                                    VALUES (?, ?, ?)
+                                `,
+                            )
+                            .bind(newUid, OAUTH.google, user.sub),
+                    ]);
+                } catch (innerError) {
+                    throw innerError;
+                }
+            }
+            await setUserSession(event, { user: { ...user, uid } }, { maxAge: ONE_HOUR });
+        } catch (error) {
             console.error({ error, message: 'problem creating or updating user' });
             return sendRedirect(event, '/');
         }
 
-        await setUserSession(event, { user }, { maxAge: ONE_HOUR });
         return sendRedirect(event, '/');
     },
 });

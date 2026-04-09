@@ -1,6 +1,6 @@
 -- Migration number: 0001 	 2026-03-12T22:49:47.165Z
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     sub TEXT NOT NULL UNIQUE,
     name TEXT,
     email TEXT,

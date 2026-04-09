@@ -27,8 +27,24 @@
             "database_id": "0f888000-373c-422f-9920-526b2d20a406",
             // "remote": true,
             "migrations_dir": "db/migrations"
+        },
+    ],
+    "env": {
+        "dev": {
+            "vars": {
+                "ENV": "dev"
+            },
+            "d1_databases": [
+                {
+                    "binding": "PRAYERS",
+                    "database_name": "prayers-db-dev",
+                    "database_id": "70985e3b-cc8d-4a64-819a-95e6b0bab083",
+                    "migrations_dir": "db/migrations"
+                    // "remote": true
+                }
+            ]
         }
-    ]
+    }
     /**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
