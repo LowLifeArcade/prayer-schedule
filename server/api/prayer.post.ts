@@ -10,14 +10,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayerId = uuidv7();
-    console.log({
-        message: 'posting uuid',
-        type: 'post',
-        prayerId,
-        user: user?.uid || 'none',
-        title,
-        body,
-    });
     try {
         const [result] = await d1.batch([
             d1
@@ -28,11 +20,11 @@ export default defineEventHandler(async (event) => {
 
         if (!result?.success) {
             console.error({ error: result?.error });
-            throw createError({ message: 'could not add prayer' + result?.error, statusCode: 422 });
+            throw createError({ message: 'could not add prayer', statusCode: 422 });
         }
     } catch (error) {
         console.error({ error });
-        throw createError({ message: 'problem adding prayer' + error, statusCode: 422 });
+        throw createError({ message: 'could not add prayer', statusCode: 422 });
     }
 
     return { message: 'success', id: prayerId, title, body };
