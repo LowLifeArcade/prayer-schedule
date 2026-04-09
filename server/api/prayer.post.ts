@@ -26,11 +26,11 @@ export default defineEventHandler(async (event) => {
 
         if (!result?.success) {
             console.error({ error: result?.error });
-            throw createError({ message: 'could not add prayer', statusCode: 422 });
+            throw createError({ message: 'could not add prayer' + result?.error, statusCode: 422 });
         }
     } catch (error) {
         console.error({ error });
-        throw createError({ message: 'could not add prayer', statusCode: 422 });
+        throw createError({ message: 'could not add prayer' + error, statusCode: 422 });
     }
 
     return { message: 'success', id: prayerId, title, body };
