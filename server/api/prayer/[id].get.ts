@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     const db = useDatabase();
 
     const { user } = await getUserSession(event);
-    if (!user) {
+    if (!user || !id) {
         throw createError({ statusCode: 401, message: 'Unauthorized' });
     }
 
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         FROM prayers as p
         JOIN prayer_bodies as pb
             ON p.id = pb.prayer_id
-        WHERE p.user_id = ${user.sub}
+        WHERE p.user_id = ${user.uid}
             AND p.id = ${id}
     `;
 
