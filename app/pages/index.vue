@@ -26,7 +26,7 @@ Press any key to continue _
             <input
                 name=""
                 ref="bsodRef"
-                @keydown="e => showBSOD = e.key !== 'Escape'"
+                @keydown="e => showBSOD = false"
             ></input>
         </div>
         <div class="top-bar">
