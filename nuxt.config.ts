@@ -31,7 +31,7 @@ export default defineNuxtConfig({
         },
         cloudflare: {
             deployConfig: true,
-            nodeCompat: true,
+            // nodeCompat: true,
             wrangler: {
                 name: 'prayerschedule',
                 compatibility_date: '2026-03-10',
