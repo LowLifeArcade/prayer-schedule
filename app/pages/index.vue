@@ -10,24 +10,12 @@
             class="description"
             @click="bsodRef.focus()"
         >
-            <pre>
-C:\WINDOWS>
-C:\Documents and Settings\{{ user?.given_name || 'anonymous' }}>
-
-A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +
-00010E36. The current application will be terminated.
-
-*  Press any key to terminate the current application.
-*  Press CTRL+ALT+DEL again to restart your computer. You will
-   lose any unsaved information in all applications.
-
-Press any key to continue _
-            </pre>
+            <pre>{{ prompt }}</pre>
             <input
                 name=""
                 ref="bsodRef"
-                @keydown="e => showBSOD = false"
-            ></input>
+                @keydown="showBSOD = false"
+            />
         </div>
         <div class="top-bar">
             <div
@@ -73,9 +61,7 @@ Press any key to continue _
         >
             <li v-for="({ title, preview, id }, i) in data">
                 <div class="prayer">
-                    <div
-                        class="title"
-                    >
+                    <div class="title">
                         <h3 @click="onPrayerClick(id)">{{ title }}</h3>
                         <span class="ctx-menu-section">
                             <SvgDots
@@ -84,21 +70,13 @@ Press any key to continue _
                                 height="27"
                                 width="27"
                                 @click="toggleMenu(i)"
-                                @drag="(e) => console.log('drag', e)"
-                                @dragend="(e) => console.log('drag ended', e)"
-                                @dragenter="console.log('has entered a droppable location')"
-                                @dragleave="console.log('has left a droppable location')"
-                                @dragover="console.log('is over a droppable location')"
-                                @drop="(e) => console.log('droped', e)"
                             />
                             <div
                                 v-if="openMenuIndex === i"
                                 class="ctx-menu"
                             >
                                 <ul>
-                                    <li @click="onPrayerClick(id)">
-                                        Open
-                                    </li>
+                                    <li>Open</li>
                                     <li
                                         class="delete danger"
                                         @click="onDelete(id)"
@@ -187,6 +165,17 @@ const toggleMenu = (i) => {
 };
 
 const closeMenu = () => (openMenuIndex.value = null);
+const prompt = `C:\\WINDOWS>
+C:\\Documents and Settings\\${user.value?.name || 'anonymous'}>
+
+A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +
+00010E36. The current application will be terminated.
+
+*  Press any key to terminate the current application.
+*  Press CTRL+ALT+DEL again to restart your computer. You will
+   lose any unsaved information in all applications.
+
+Press any key to continue _`;
 
 async function onLogout() {
     await clear();
@@ -199,13 +188,13 @@ function onPrayerClick(prayerId) {
         name: 'prayer-prayerId',
         params: {
             prayerId,
-        }
-    })
+        },
+    });
 }
 
 async function onLogoClick() {
     showBSOD.value = true;
-    await nextTick()
+    await nextTick();
     bsodRef.value?.focus();
 }
 
@@ -337,6 +326,9 @@ async function onDelete(id) {
         .prayer {
             border: 1px solid var(--color-border-2);
             background-color: var(--color-surface);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
 
             .title {
                 margin-bottom: 1rem;
@@ -386,6 +378,7 @@ async function onDelete(id) {
 
             p {
                 text-overflow: ellipsis;
+                flex: auto;
                 max-width: 200px;
                 overflow: hidden;
                 display: -webkit-box;

@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const db = useDatabase();
 
+    // use KV to cache
     const { rows, error, success } = await db.sql`
         SELECT
             id, title, preview
