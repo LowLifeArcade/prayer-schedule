@@ -10,6 +10,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayerId = uuidv7();
+    console.log({
+        message: 'posting uuid',
+        type: 'post',
+        prayerId,
+        user: user?.uid,
+    });
     try {
         const [result] = await d1.batch([
             d1
