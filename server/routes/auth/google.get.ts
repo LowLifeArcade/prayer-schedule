@@ -22,7 +22,7 @@ export default defineOAuthGoogleEventHandler({
                 AND ui.provider_uid = ${user.sub}
             `;
 
-            const uid = existing.rows?.[0]?.uid as string;
+            let uid = existing.rows?.[0]?.uid as string;
             if (uid) {
                 await db.sql`
                     UPDATE users
@@ -33,7 +33,7 @@ export default defineOAuthGoogleEventHandler({
                 `;
             } else {
                 try {
-                    const newUid = uuidv7();
+                    uid = uuidv7();
                     await d1.batch([
                         d1
                             .prepare(
@@ -42,7 +42,7 @@ export default defineOAuthGoogleEventHandler({
                                     VALUES (?, ?, ?, ?)
                                 `,
                             )
-                            .bind(newUid, user.name, user.email, user.picture),
+                            .bind(uid, user.name, user.email, user.picture),
                         d1
                             .prepare(
                                 `
@@ -50,7 +50,7 @@ export default defineOAuthGoogleEventHandler({
                                     VALUES (?, ?, ?)
                                 `,
                             )
-                            .bind(newUid, OAUTH.google, user.sub),
+                            .bind(uid, OAUTH.google, user.sub),
                     ]);
                 } catch (innerError) {
                     throw innerError;
