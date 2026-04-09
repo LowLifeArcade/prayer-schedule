@@ -55,49 +55,53 @@
                 <ThemeToggle />
             </div>
         </div>
-        <ul
-            v-if="loggedIn && !showAddPrayerForm"
-            class="prayers"
-        >
-            <li v-for="({ title, preview, id }, i) in data">
-                <div class="prayer">
-                    <div class="title">
-                        <h3 @click="onPrayerClick(id)">{{ title }}</h3>
-                        <span class="ctx-menu-section">
-                            <SvgDots
-                                class="ctx-menu-btn"
-                                alt=""
-                                height="27"
-                                width="27"
-                                @click="toggleMenu(i)"
-                            />
-                            <div
-                                v-if="openMenuIndex === i"
-                                class="ctx-menu"
-                            >
-                                <ul>
-                                    <li>Open</li>
-                                    <li
-                                        class="delete danger"
-                                        @click="onDelete(id)"
-                                    >
-                                        Delete <SvgTrash />
-                                    </li>
-                                </ul>
-                            </div>
-                        </span>
+        <ul v-if="loggedIn && !showAddPrayerForm">
+            <VueDraggable
+                v-model="prayers"
+                class="prayers"
+                element="ul"
+                @end="onMoved"
+            >
+                <li v-for="({ title, preview, id }, i) in prayers">
+                    <div class="prayer">
+                        <div class="title">
+                            <h3 @click="onPrayerClick(id)">{{ title }}</h3>
+                            <span class="ctx-menu-section">
+                                <SvgDots
+                                    class="ctx-menu-btn"
+                                    alt=""
+                                    height="27"
+                                    width="27"
+                                    @click="toggleMenu(i)"
+                                />
+                                <div
+                                    v-if="openMenuIndex === i"
+                                    class="ctx-menu"
+                                >
+                                    <ul>
+                                        <li>Open</li>
+                                        <li
+                                            class="delete danger"
+                                            @click="onDelete(id)"
+                                        >
+                                            Delete <SvgTrash />
+                                        </li>
+                                    </ul>
+                                </div>
+                            </span>
+                        </div>
+                        <p @click="onPrayerClick(id)">{{ preview }}</p>
                     </div>
-                    <p @click="onPrayerClick(id)">{{ preview }}</p>
-                </div>
-            </li>
-            <li v-if="!showAddPrayerForm">
-                <button
-                    class="add-prayer"
-                    @click="showAddPrayerForm = true"
-                >
-                    <SvgPlus />
-                </button>
-            </li>
+                </li>
+                <li v-if="!showAddPrayerForm">
+                    <button
+                        class="add-prayer"
+                        @click="showAddPrayerForm = true"
+                    >
+                        <SvgPlus />
+                    </button>
+                </li>
+            </VueDraggable>
         </ul>
 
         <form
@@ -146,9 +150,18 @@
 </template>
 
 <script setup>
-const { data, pending, refresh } = useFetch('/api/prayers');
+import { VueDraggable } from 'vue-draggable-plus';
+
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 const router = useRouter();
+
+const { data, pending, refresh } = useFetch('/api/prayers');
+const prayers = ref();
+watch(data, () => (prayers.value = data.value), { deep: true, immediate: true });
+function onMoved(e) {
+    // TODO: Update order in sql - add order field or json metadata for display
+    console.log('moved', e)
+}
 
 const showAddPrayerForm = ref(false);
 const initialState = () => ({
