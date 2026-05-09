@@ -62,7 +62,7 @@
                 element="ul"
                 @end="onMoved"
             >
-                <li v-for="({ title, preview, id }, i) in prayers">
+                <li v-for="({ title, preview, id, pos }, i) in sortedPrayers">
                     <div class="prayer">
                         <div class="title">
                             <h3 @click="onPrayerClick(id)">{{ title }}</h3>
@@ -155,12 +155,34 @@ import { VueDraggable } from 'vue-draggable-plus';
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 const router = useRouter();
 
-const { data, pending, refresh } = useFetch('/api/prayers');
-const prayers = ref();
-watch(data, () => (prayers.value = data.value), { deep: true, immediate: true });
+const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
+const sortedPrayers = computed(() => prayers.value.sort((a, b) => (a.pos > b.pos ? 1 : -1)));
+
 function onMoved(e) {
-    // TODO: Update order in sql - add order field or json metadata for display
-    console.log('moved', e)
+    const prayersArr = prayers.value;
+    const prayeridx = prayersArr.findIndex((p) => p.id === e.data.id);
+    const nextPrayerPos = prayersArr[prayeridx + 1]?.pos;
+    const prevPrayerPos = prayersArr[prayeridx - 1]?.pos;
+
+    let newPos;
+    if (nextPrayerPos && prevPrayerPos) {
+        newPos = Math.floor((prevPrayerPos + nextPrayerPos) / 2);
+    } else if (nextPrayerPos) {
+        newPos = nextPrayerPos - 1000;
+    } else if (prevPrayerPos) {
+        newPos = prevPrayerPos + 1000;
+    }
+
+    $fetch('/api/prayers', {
+        method: 'post',
+        body: {
+            id: e.data.id,
+            newPos,
+            listName: 'default',
+        },
+    });
+
+    refresh();
 }
 
 const showAddPrayerForm = ref(false);

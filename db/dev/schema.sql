@@ -25,19 +25,28 @@ CREATE TABLE IF NOT EXISTS user_identities (
 -- drop first since is has foreign key constraints
 DROP TABLE IF EXISTS prayer_bodies;
 DROP TABLE IF EXISTS prayers;
+DROP TABLE IF EXISTS prayer_positions;
 CREATE TABLE IF NOT EXISTS prayers (
     -- id = uuidv7
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     user_id TEXT NOT NULL,
-    preview text not null,
-    created_at TIMESTAMP DEFAULT (unixepoch()),
-    updated_at TIMESTAMP DEFAULT (unixepoch()),
-    deleted_at TIMESTAMP DEFAULT NULL
+    preview TEXT not null,
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch()),
+    deleted_at INTEGER DEFAULT NULL
 );
 CREATE TABLE IF NOT EXISTS prayer_bodies (
     prayer_id TEXT PRIMARY KEY REFERENCES prayers(id),
     body TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS prayer_positions (
+    user_id REFERENCES users(uid),
+    prayer_id REFERENCES prayers(id),
+    list_name TEXT DEFAULT 'default',
+    pos INTEGER NOT NULL,
+    primary key (list_name, user_id, prayer_id)
+    unique (user_id, list_name, pos)
 );
 -- =======================
 -- MEMBERSHIPS

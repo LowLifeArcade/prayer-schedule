@@ -24,10 +24,6 @@ export default defineNuxtConfig({
                 connector: 'cloudflare-d1',
                 options: { bindingName: 'PRAYERS' },
             },
-            // users: {
-            //     connector: 'cloudflare-d1',
-            //     options: { bindingName: 'USERS' },
-            // },
         },
         cloudflare: {
             deployConfig: true,

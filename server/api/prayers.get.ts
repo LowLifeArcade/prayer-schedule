@@ -10,9 +10,11 @@ export default defineEventHandler(async (event) => {
     // use KV to cache
     const { rows, error, success } = await db.sql`
         SELECT
-            id, title, preview
-        FROM prayers
-        WHERE user_id = ${session.user.uid}
+            p.id, p.title, p.preview, pp.pos
+        FROM prayers p
+        JOIN prayer_positions pp
+            ON pp.prayer_id = p.id
+        WHERE p.user_id = ${session.user.uid}
         AND deleted_at IS NULL
     `;
 
