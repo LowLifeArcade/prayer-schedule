@@ -23,4 +23,6 @@ export default defineEventHandler(async (event) => {
             AND user_id = ${user.uid}
             AND list_name = ${listName}
     `
+
+    return { message: 'success '}
 });

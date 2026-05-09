@@ -158,7 +158,7 @@ const router = useRouter();
 const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
 const sortedPrayers = computed(() => prayers.value.sort((a, b) => (a.pos > b.pos ? 1 : -1)));
 
-function onMoved(e) {
+async function onMoved(e) {
     const prayersArr = prayers.value;
     const prayeridx = prayersArr.findIndex((p) => p.id === e.data.id);
     const nextPrayerPos = prayersArr[prayeridx + 1]?.pos;
@@ -173,7 +173,7 @@ function onMoved(e) {
         newPos = prevPrayerPos + 1000;
     }
 
-    $fetch('/api/prayers', {
+    await $fetch('/api/prayers', {
         method: 'post',
         body: {
             id: e.data.id,
