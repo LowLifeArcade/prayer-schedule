@@ -1,9 +1,9 @@
 <template>
     <div class="v-prayers container">
         <div
-            v-if="openMenuIndex != null"
+            v-if="openMenuId != null"
             class="overlay"
-            @click="openMenuIndex = null"
+            @click="openMenuId = null"
         ></div>
         <div
             v-if="showBSOD"
@@ -57,7 +57,7 @@
         </div>
         <ul v-if="loggedIn && !showAddPrayerForm">
             <VueDraggable
-                v-model="prayers"
+                v-model="displayedPrayers"
                 class="prayers"
                 :delay="250"
                 :delay-on-touch-only="true"
@@ -65,7 +65,10 @@
                 element="ul"
                 @end="onMoved"
             >
-                <li v-for="(item, i) in sortedPrayers">
+                <li
+                    v-for="item in displayedPrayers"
+                    :key="item.id"
+                >
                     <div class="prayer">
                         <img
                             v-if="item.currentDayImageUrl"
@@ -82,10 +85,10 @@
                                     alt=""
                                     height="27"
                                     width="27"
-                                    @click="toggleMenu(i)"
+                                    @click="toggleMenu(item.id)"
                                 />
                                 <div
-                                    v-if="openMenuIndex === i"
+                                    v-if="openMenuId === item.id"
                                     class="ctx-menu"
                                 >
                                     <ul>
@@ -312,27 +315,49 @@ const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, sessio
 const router = useRouter();
 
 const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
-const sortedPrayers = computed(() => [...(prayers.value || [])].sort((a, b) => (a.pos > b.pos ? 1 : -1)));
+const displayedPrayers = ref([]);
+
+const sortPrayers = (items = []) => [...items].sort((a, b) => a.pos - b.pos);
+
+watch(
+    prayers,
+    (items) => {
+        displayedPrayers.value = sortPrayers(items || []);
+    },
+    { immediate: true },
+);
 
 async function onMoved(e) {
-    const prayersArr = prayers.value;
-    const prayeridx = prayersArr.findIndex((p) => p.id === e.data.id);
+    const prayersArr = displayedPrayers.value;
+    const movedPrayerId = e.data?.id ?? prayersArr[e.newIndex]?.id;
+    const prayeridx = prayersArr.findIndex((p) => p.id === movedPrayerId);
+
+    if (prayeridx === -1) {
+        return;
+    }
+
     const nextPrayerPos = prayersArr[prayeridx + 1]?.pos;
     const prevPrayerPos = prayersArr[prayeridx - 1]?.pos;
 
     let newPos;
-    if (nextPrayerPos && prevPrayerPos) {
+    if (nextPrayerPos != null && prevPrayerPos != null) {
         newPos = Math.floor((prevPrayerPos + nextPrayerPos) / 2);
-    } else if (nextPrayerPos) {
+    } else if (nextPrayerPos != null) {
         newPos = nextPrayerPos - 1000;
-    } else if (prevPrayerPos) {
+    } else if (prevPrayerPos != null) {
         newPos = prevPrayerPos + 1000;
     }
+
+    if (newPos == null) {
+        return;
+    }
+
+    prayersArr[prayeridx].pos = newPos;
 
     await $fetch('/api/prayers', {
         method: 'post',
         body: {
-            id: e.data.id,
+            id: movedPrayerId,
             newPos,
             listName: 'default',
         },
@@ -356,15 +381,15 @@ const initialState = () => ({
     ],
 });
 const prayer = reactive(initialState());
-const openMenuIndex = ref();
+const openMenuId = ref();
 const showBSOD = ref();
 const bsodRef = ref(null);
 
-const toggleMenu = (i) => {
-    openMenuIndex.value = openMenuIndex.value === i ? null : i;
+const toggleMenu = (id) => {
+    openMenuId.value = openMenuId.value === id ? null : id;
 };
 
-const closeMenu = () => (openMenuIndex.value = null);
+const closeMenu = () => (openMenuId.value = null);
 const prompt = `C:\\WINDOWS>
 C:\\Documents and Settings\\${user.value?.name || 'anonymous'}>
 
@@ -420,18 +445,21 @@ async function onAddPrayer() {
 
 async function onDelete(id) {
     try {
-        const resp = await $fetch('/api/prayer', {
+        await $fetch('/api/prayer', {
             method: 'delete',
             query: {
                 id,
             },
         });
+
+        prayers.value = (prayers.value || []).filter((prayer) => prayer.id !== id);
+        displayedPrayers.value = displayedPrayers.value.filter((prayer) => prayer.id !== id);
     } catch (error) {
         console.log({ error });
     }
 
     closeMenu();
-    refresh();
+    await refresh();
 }
 
 function syncDays() {
