@@ -470,6 +470,10 @@ function onDaySelect(prayerId, dayNumber) {
 }
 
 async function onLogoClick() {
+    if (true) {
+        return;
+    }
+
     showBSOD.value = true;
     await nextTick();
     bsodRef.value?.focus();
