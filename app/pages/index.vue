@@ -55,6 +55,114 @@
                 <ThemeToggle />
             </div>
         </div>
+        <main
+            v-if="!loggedIn"
+            class="home-page"
+        >
+            <section class="home-hero">
+                <div class="hero-copy">
+                    <p class="eyebrow">Catholic prayer, ordered for ordinary days</p>
+                    <h2>Keep your devotions close to the rhythm of grace.</h2>
+                    <p>
+                        Prayer List helps you carry novenas, chaplets, intentions, and daily devotions without
+                        turning prayer into another productivity score. Make a quiet plan, return faithfully, and
+                        let the Church's seasons shape your day.
+                    </p>
+                    <div class="hero-actions">
+                        <a
+                            class="primary-action"
+                            href="/auth/google"
+                            >Begin with prayer</a
+                        >
+                        <a
+                            class="secondary-action"
+                            href="#features"
+                            >See features</a
+                        >
+                    </div>
+                </div>
+                <div
+                    class="hero-visual"
+                    aria-label="Preview of Catholic prayer planning features"
+                >
+                    <div class="orbital-ring"></div>
+                    <article class="prayer-preview main-preview">
+                        <span>Today</span>
+                        <h3>St. Joseph Novena</h3>
+                        <p>Day 4: For steadfast work, family life, and a heart obedient to God.</p>
+                        <div class="day-dots">
+                            <span
+                                v-for="day in 9"
+                                :key="day"
+                                :class="{ active: day === 4, complete: day < 4 }"
+                            ></span>
+                        </div>
+                    </article>
+                    <article class="prayer-preview intention-preview">
+                        <span>Intentions</span>
+                        <strong>For Anna's surgery</strong>
+                    </article>
+                    <article class="prayer-preview season-preview">
+                        <span>Liturgical time</span>
+                        <strong>Ordinary Time</strong>
+                    </article>
+                </div>
+            </section>
+
+            <section
+                id="features"
+                class="feature-section"
+            >
+                <div class="section-heading">
+                    <p class="eyebrow">Features</p>
+                    <h2>Built for real Catholic prayer habits.</h2>
+                </div>
+                <div class="feature-grid">
+                    <article
+                        v-for="feature in homeFeatures"
+                        :key="feature.title"
+                        class="feature-card"
+                    >
+                        <span class="feature-icon">{{ feature.icon }}</span>
+                        <h3>{{ feature.title }}</h3>
+                        <p>{{ feature.body }}</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="rhythm-section">
+                <div class="rhythm-copy">
+                    <p class="eyebrow">A gentler structure</p>
+                    <h2>Reminders that serve recollection, not anxiety.</h2>
+                    <p>
+                        Keep a simple list for the prayers you mean to return to: the Rosary, Divine Mercy Chaplet,
+                        a novena before a feast, lectio divina, or intercessions entrusted to you by friends.
+                    </p>
+                </div>
+                <div class="rhythm-list">
+                    <article
+                        v-for="item in prayerRhythms"
+                        :key="item.label"
+                    >
+                        <span>{{ item.time }}</span>
+                        <div>
+                            <h3>{{ item.label }}</h3>
+                            <p>{{ item.body }}</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="closing-cta">
+                <p class="eyebrow">Ora et labora</p>
+                <h2>Make space for prayer before the day fills itself.</h2>
+                <a
+                    class="primary-action"
+                    href="/auth/google"
+                    >Log in to start</a
+                >
+            </section>
+        </main>
         <ul v-if="loggedIn && !showAddPrayerForm">
             <VueDraggable
                 v-model="displayedPrayers"
@@ -355,6 +463,45 @@ const router = useRouter();
 
 const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
 const displayedPrayers = ref([]);
+const homeFeatures = [
+    {
+        icon: '✚',
+        title: 'Novenas and multi-day prayers',
+        body: 'Create a prayer once, then move day by day with the right text, image, and intention ready when you return.',
+    },
+    {
+        icon: '☩',
+        title: 'Intentions kept with care',
+        body: 'Hold names, needs, and entrusted petitions in one place without making them feel like tasks to clear.',
+    },
+    {
+        icon: '✦',
+        title: 'Liturgical awareness',
+        body: 'Shape personal devotion around seasons, feasts, solemnities, and the ordinary fidelity of daily prayer.',
+    },
+    {
+        icon: '◐',
+        title: 'Quiet progress',
+        body: 'See where you are in a devotion without streak pressure, badges, or pretending grace can be measured.',
+    },
+];
+const prayerRhythms = [
+    {
+        time: 'Morning',
+        label: 'Offer the day',
+        body: 'Begin with a prayer, a saint, or a simple intention before work starts pulling at you.',
+    },
+    {
+        time: 'Midday',
+        label: 'Return briefly',
+        body: 'Open the devotion you are carrying and recollect yourself in the middle of ordinary duties.',
+    },
+    {
+        time: 'Evening',
+        label: 'Close in gratitude',
+        body: 'Pray an examen, finish a novena day, or entrust tomorrow to the Lord with peace.',
+    },
+];
 
 const sortPrayers = (items = []) => [...items].sort((a, b) => a.pos - b.pos);
 
@@ -694,6 +841,8 @@ function buildPrayerPayload() {
 
 <style scoped>
 .v-prayers {
+    overflow-x: clip;
+
     .overlay {
         position: absolute;
         background-color: var(--color-bg-2);
@@ -729,7 +878,7 @@ function buildPrayerPayload() {
         }
     }
 
-    .top-bar {
+        .top-bar {
         padding-block: 2rem;
         display: flex;
         justify-content: space-between;
@@ -762,10 +911,464 @@ function buildPrayerPayload() {
             display: grid;
             place-items: center;
             font-weight: 600;
+            }
         }
-    }
 
-    .prayers {
+        .home-page {
+            display: grid;
+            gap: 8rem;
+            padding: 2rem 0 7rem;
+        }
+
+        .eyebrow {
+            color: #9f3429;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .home-hero {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1.02fr) minmax(34rem, 0.98fr);
+            align-items: center;
+            gap: 5rem;
+            min-height: min(76rem, calc(100vh - 13rem));
+            padding: 5rem 0 7rem;
+            border-bottom: 1px solid var(--color-border);
+            overflow: hidden;
+        }
+
+        .hero-copy {
+            display: grid;
+            gap: 2rem;
+            max-width: 78rem;
+            animation: rise-in 700ms ease both;
+
+            h2 {
+                max-width: 12ch;
+                font-size: clamp(5rem, 9vw, 12rem);
+                line-height: 0.88;
+                letter-spacing: 0;
+            }
+
+            p:not(.eyebrow) {
+                max-width: 68rem;
+                color: var(--color-text-muted);
+                font-size: clamp(1.8rem, 2vw, 2.3rem);
+                line-height: 1.45;
+            }
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .primary-action,
+        .secondary-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 5.4rem;
+            padding: 1.3rem 2rem;
+            border-radius: 0.8rem;
+            font-weight: 800;
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                background-color 180ms ease;
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        .primary-action {
+            background: #b63b31;
+            color: #fff;
+            box-shadow: 0 1.8rem 4rem rgba(91, 24, 18, 0.24);
+        }
+
+        .secondary-action {
+            border: 1px solid var(--color-border-2);
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        .hero-visual {
+            position: relative;
+            min-height: 54rem;
+            overflow: clip;
+            animation: float-in 900ms 120ms ease both;
+        }
+
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            inset: 7rem 4rem 5rem;
+            border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+            border-radius: 50%;
+            transform: rotate(-14deg);
+            animation: slow-turn 18s linear infinite;
+        }
+
+        .orbital-ring {
+            position: absolute;
+            inset: 2rem 7rem;
+            border: 0.2rem solid color-mix(in srgb, #b63b31 36%, transparent);
+            border-radius: 50%;
+            transform: rotate(19deg);
+            animation: slow-turn 24s linear infinite reverse;
+        }
+
+        .prayer-preview {
+            position: absolute;
+            display: grid;
+            gap: 1rem;
+            width: min(34rem, 82%);
+            padding: 2rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.8rem;
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--color-surface) 92%, #ffffff), var(--color-surface)),
+                var(--color-surface);
+            box-shadow: 0 2.2rem 6rem rgba(0, 0, 0, 0.16);
+
+            span {
+                color: #2f7464;
+                font-size: 1.2rem;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
+
+            h3 {
+                font-size: 2.6rem;
+                line-height: 1.05;
+            }
+
+            p {
+                color: var(--color-text-muted);
+                font-size: 1.5rem;
+                line-height: 1.45;
+            }
+        }
+
+        .main-preview {
+            top: 10rem;
+            left: 8%;
+            z-index: 2;
+            animation: card-drift 6s ease-in-out infinite;
+        }
+
+        .intention-preview,
+        .season-preview {
+            width: min(26rem, 68%);
+            z-index: 3;
+
+            strong {
+                font-size: 1.8rem;
+            }
+        }
+
+        .intention-preview {
+            right: 0;
+            top: 4rem;
+            animation: card-drift 7s 300ms ease-in-out infinite;
+        }
+
+        .season-preview {
+            right: 8%;
+            bottom: 8rem;
+            animation: card-drift 8s 600ms ease-in-out infinite;
+        }
+
+        .day-dots {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+
+            span {
+                display: block;
+                height: 0.8rem;
+                border-radius: 999px;
+                background: var(--color-surface-2);
+            }
+
+            .complete {
+                background: #2f7464;
+            }
+
+            .active {
+                background: #b63b31;
+                box-shadow: 0 0 0 0.4rem color-mix(in srgb, #b63b31 16%, transparent);
+            }
+        }
+
+        .feature-section,
+        .rhythm-section,
+        .closing-cta {
+            animation: rise-in 700ms 160ms ease both;
+        }
+
+        .section-heading,
+        .rhythm-copy,
+        .closing-cta {
+            display: grid;
+            gap: 1rem;
+
+            h2 {
+                max-width: 72rem;
+                font-size: clamp(3.4rem, 5vw, 6.8rem);
+                line-height: 0.95;
+                letter-spacing: 0;
+            }
+
+            p:not(.eyebrow) {
+                color: var(--color-text-muted);
+                line-height: 1.5;
+            }
+        }
+
+        .feature-section {
+            display: grid;
+            gap: 3rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            display: grid;
+            align-content: start;
+            gap: 1.2rem;
+            min-height: 28rem;
+            padding: 2rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.8rem;
+            background: var(--color-surface);
+            transition:
+                transform 180ms ease,
+                border-color 180ms ease,
+                box-shadow 180ms ease;
+
+            &:hover {
+                transform: translateY(-0.4rem);
+                border-color: color-mix(in srgb, #b63b31 44%, var(--color-border));
+                box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.12);
+            }
+
+            .feature-icon {
+                display: grid;
+                place-items: center;
+                width: 4.4rem;
+                height: 4.4rem;
+                border: 1px solid var(--color-border-2);
+                border-radius: 999px;
+                color: #b63b31;
+                background: var(--color-bg);
+                font-size: 2.2rem;
+                line-height: 1;
+            }
+
+            h3 {
+                font-size: 2.2rem;
+                line-height: 1.05;
+            }
+
+            p {
+                color: var(--color-text-muted);
+                font-size: 1.55rem;
+                line-height: 1.45;
+            }
+        }
+
+        .rhythm-section {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(32rem, 1.1fr);
+            gap: 4rem;
+            align-items: start;
+            padding-block: 2rem;
+        }
+
+        .rhythm-list {
+            display: grid;
+            gap: 1rem;
+
+            article {
+                display: grid;
+                grid-template-columns: 10rem minmax(0, 1fr);
+                gap: 1.6rem;
+                padding: 1.7rem;
+                border: 1px solid var(--color-border);
+                border-radius: 0.8rem;
+                background: var(--color-surface);
+                transition:
+                    transform 180ms ease,
+                    background-color 180ms ease;
+
+                &:hover {
+                    transform: translateX(0.4rem);
+                    background: color-mix(in srgb, var(--color-surface) 88%, #2f7464);
+                }
+
+                > span {
+                    color: #2f7464;
+                    font-size: 1.3rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                }
+
+                h3 {
+                    font-size: 2.1rem;
+                }
+
+                p {
+                    color: var(--color-text-muted);
+                    font-size: 1.5rem;
+                    line-height: 1.45;
+                }
+            }
+        }
+
+        .closing-cta {
+            align-items: start;
+            padding: 4rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.8rem;
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--color-surface) 92%, #b63b31), var(--color-surface)),
+                var(--color-surface);
+
+            .primary-action {
+                justify-self: start;
+                width: fit-content;
+                min-width: 18rem;
+            }
+        }
+
+        @media (width < 980px) {
+            .home-hero,
+            .rhythm-section {
+                grid-template-columns: 1fr;
+            }
+
+            .home-hero {
+                min-height: unset;
+                padding-top: 2rem;
+            }
+
+            .hero-copy h2 {
+                max-width: 11ch;
+            }
+
+            .hero-visual {
+                min-height: 44rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (width < 640px) {
+            .home-page {
+                gap: 5rem;
+            }
+
+            .top-bar {
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+
+            .home-hero {
+                gap: 2rem;
+                padding-bottom: 5rem;
+            }
+
+            .hero-copy h2 {
+                font-size: 5.2rem;
+            }
+
+            .hero-actions,
+            .hero-actions .primary-action,
+            .hero-actions .secondary-action {
+                width: 100%;
+            }
+
+            .hero-visual {
+                display: grid;
+                gap: 1rem;
+                min-height: unset;
+                padding: 3rem 0;
+            }
+
+            .hero-visual::before {
+                inset: 1rem 2rem;
+            }
+
+            .orbital-ring {
+                inset: 0 4.5rem;
+            }
+
+            .prayer-preview,
+            .main-preview,
+            .intention-preview,
+            .season-preview {
+                position: relative;
+                inset: unset;
+                width: 100%;
+                max-width: 100%;
+                animation: none;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: unset;
+            }
+
+            .rhythm-list article {
+                grid-template-columns: 1fr;
+            }
+
+            .closing-cta {
+                padding: 2.2rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-copy,
+            .hero-visual,
+            .main-preview,
+            .intention-preview,
+            .season-preview,
+            .feature-section,
+            .rhythm-section,
+            .closing-cta,
+            .orbital-ring,
+            .hero-visual::before {
+                animation: none;
+            }
+
+            .primary-action,
+            .secondary-action,
+            .feature-card,
+            .rhythm-list article {
+                transition: none;
+            }
+        }
+
+        .prayers {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         gap: 2rem;
@@ -1193,6 +1796,51 @@ function buildPrayerPayload() {
             display: grid;
             gap: 2rem;
         }
+    }
+}
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(2rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float-in {
+    from {
+        opacity: 0;
+        transform: translateY(2rem) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slow-turn {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes card-drift {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-1rem);
     }
 }
 </style>
