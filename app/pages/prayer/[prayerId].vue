@@ -1,6 +1,7 @@
 <template>
+    <NuxtPage v-if="isEditing" />
     <div
-        v-if="loggedIn"
+        v-else-if="loggedIn"
         class="v-prayer"
     >
         <div class="top container">
@@ -94,6 +95,12 @@
 
             <div class="actions">
                 <button
+                    class="edit-btn"
+                    @click="router.push(`/prayer/${prayerId}/edit`)"
+                >
+                    Edit
+                </button>
+                <button
                     class="done-btn"
                     :class="{ complete: isSelectedDayComplete }"
                     @click="onDone"
@@ -117,6 +124,7 @@ const { data, pending, refresh } = useFetch(`/api/prayer/${prayerId}`, {
 
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 const router = useRouter();
+const isEditing = computed(() => route.name === 'prayer-prayerId-edit');
 
 const isSelectedDayComplete = computed(() => data.value?.completedDays?.includes(selectedDayNumber.value));
 const dayLabel = computed(() => {
@@ -369,13 +377,11 @@ async function onDone() {
         pointer-events: none;
     }
 
+    .edit-btn,
     .done-btn {
         min-height: 5.6rem;
         padding: 1.4rem 2.2rem;
-        border: 1px solid var(--color-text);
         border-radius: 0.8rem;
-        background: var(--color-text);
-        color: var(--color-text-alt);
         cursor: pointer;
         font-weight: 800;
         pointer-events: auto;
@@ -388,6 +394,22 @@ async function onDone() {
             filter: brightness(0.88);
             transform: translateY(-1px);
         }
+    }
+
+    .actions {
+        gap: 1rem;
+    }
+
+    .edit-btn {
+        border: 1px solid var(--color-border-2);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .done-btn {
+        border: 1px solid var(--color-text);
+        background: var(--color-text);
+        color: var(--color-text-alt);
 
         &.complete {
             border-color: var(--color-border-2);
@@ -420,9 +442,11 @@ async function onDone() {
         }
 
         .actions {
-            justify-content: stretch;
+            align-items: stretch;
+            flex-direction: column;
         }
 
+        .edit-btn,
         .done-btn {
             width: 100%;
         }

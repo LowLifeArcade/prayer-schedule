@@ -67,6 +67,8 @@ export default defineEventHandler(async (event) => {
     return {
         ...prayerRow,
         body: composedBlocks.length ? selectedBlocks.map((block) => block.body).join('\n\n') : usesLegacyStaticDayBody ? selectedDayBody : prayerRow.body,
+        editBody: composedBlocks.length ? '' : prayerRow.body,
+        contentBlocks: composedBlocks,
         selectedDayNumber: selectedDay?.day_number || 1,
         selectedDayTitle: selectedDay?.title || null,
         selectedDayBody: dynamicDayBody,
@@ -78,6 +80,7 @@ export default defineEventHandler(async (event) => {
         days: days.rows.map((item) => ({
             dayNumber: item.day_number,
             title: item.title,
+            body: item.body,
             imageUrl: item.image_url,
             contentMode: item.content_mode,
             isComplete: completedDays.has(item.day_number),

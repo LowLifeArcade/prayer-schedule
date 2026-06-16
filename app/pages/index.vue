@@ -85,17 +85,19 @@
                                     alt=""
                                     height="27"
                                     width="27"
-                                    @click="toggleMenu(item.id)"
+                                    @click.stop="toggleMenu(item.id)"
                                 />
                                 <div
                                     v-if="openMenuId === item.id"
                                     class="ctx-menu"
+                                    @click.stop
                                 >
                                     <ul>
-                                        <li>Open</li>
+                                        <li @click.stop="onPrayerClick(item.id, item.currentDayNumber)">Open</li>
+                                        <li @click.stop="onEdit(item.id)">Edit</li>
                                         <li
                                             class="delete danger"
-                                            @click="onDelete(item.id)"
+                                            @click.stop="onDelete(item.id)"
                                         >
                                             Delete <SvgTrash />
                                         </li>
@@ -467,6 +469,11 @@ function onPrayerClick(prayerId, dayNumber) {
 
 function onDaySelect(prayerId, dayNumber) {
     onPrayerClick(prayerId, dayNumber);
+}
+
+function onEdit(prayerId) {
+    closeMenu();
+    router.push(`/prayer/${prayerId}/edit`);
 }
 
 async function onLogoClick() {
