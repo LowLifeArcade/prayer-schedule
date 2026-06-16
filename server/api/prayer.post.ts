@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    const { title, body, days = [], listName = 'default' } = await readBody(event);
+    const { title, body, days = [], contentBlocks = [], listName = 'default' } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
 
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayerId = uuidv7();
+    const normalizedContentBlocks = normalizeContentBlocks(contentBlocks);
     const normalizedDays = Array.isArray(days)
         ? days
               .map((day, index) => ({
@@ -19,11 +20,19 @@ export default defineEventHandler(async (event) => {
                   imageUrl: day.imageUrl?.trim() || null,
                   contentMode: day.contentMode === 'dynamic' ? 'dynamic' : 'static',
               }))
-              .filter((day) => day.body)
               .sort((a, b) => a.dayNumber - b.dayNumber)
         : [];
-    const prayerBody = body?.trim() || '';
-    const preview = (prayerBody || normalizedDays[0]?.body || '').substring(0, 200);
+    const plainPrayerBody = body?.trim() || '';
+    const prayerBody = normalizedContentBlocks.length
+        ? JSON.stringify({
+              kind: 'prayer-content-blocks',
+              version: 1,
+              blocks: normalizedContentBlocks,
+          })
+        : plainPrayerBody;
+    const preview = (
+        normalizedContentBlocks.length ? renderContentBlocks(normalizedContentBlocks, normalizedDays[0]?.dayNumber || 1) : plainPrayerBody
+    ).substring(0, 200);
 
     try {
         const statements = [
@@ -67,3 +76,61 @@ export default defineEventHandler(async (event) => {
 
     return { message: 'success', id: prayerId, title, body: prayerBody, days: normalizedDays };
 });
+
+function normalizeContentBlocks(contentBlocks: unknown) {
+    if (!Array.isArray(contentBlocks)) {
+        return [];
+    }
+
+    return contentBlocks
+        .map((block, index) => {
+            if (!block || typeof block !== 'object') {
+                return null;
+            }
+
+            const value = block as Record<string, any>;
+
+            if (value.type === 'dynamic') {
+                const dynamicDays = Array.isArray(value.days)
+                    ? value.days
+                          .map((day: Record<string, any>, dayIndex: number) => ({
+                              dayNumber: Number(day?.dayNumber || dayIndex + 1),
+                              body: day?.body?.trim() || '',
+                          }))
+                          .sort((a, b) => a.dayNumber - b.dayNumber)
+                    : [];
+
+                return {
+                    id: String(value.id || `block-${index + 1}`),
+                    type: 'dynamic',
+                    days: dynamicDays,
+                };
+            }
+
+            return {
+                id: String(value.id || `block-${index + 1}`),
+                type: 'static',
+                body: value.body?.trim() || '',
+            };
+        })
+        .filter((block) => {
+            if (!block) {
+                return false;
+            }
+
+            return block.type === 'dynamic' ? block.days.some((day) => day.body) : Boolean(block.body);
+        });
+}
+
+function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
+    return blocks
+        .map((block) => {
+            if (block.type === 'dynamic') {
+                return block.days.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+            }
+
+            return block.body || '';
+        })
+        .filter(Boolean)
+        .join('\n\n');
+}

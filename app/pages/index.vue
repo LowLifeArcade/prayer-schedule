@@ -167,6 +167,7 @@
                 <span class="toggle-track"></span>
             </label>
             <label
+                v-if="!prayer.isMultiDay"
                 for="body"
                 class="title"
             >
@@ -175,7 +176,6 @@
                     v-model="prayer.body"
                     type="text"
                     name="body"
-                    :placeholder="prayer.isMultiDay ? 'This prayer appears every day.' : ''"
                 />
             </label>
             <template v-if="prayer.isMultiDay">
@@ -207,46 +207,123 @@
                         </button>
                     </div>
                 </div>
-                <section
-                    v-for="day in prayer.days"
-                    :key="day.dayNumber"
-                    class="day-editor"
-                >
-                    <div class="day-editor-header">
-                        <h4>Day {{ day.dayNumber }}</h4>
+                <div class="content-builder">
+                    <div class="content-builder-header">
+                        <h4>Prayer Content</h4>
+                    </div>
+                    <section
+                        v-for="(block, index) in prayer.contentBlocks"
+                        :key="block.id"
+                        class="content-block"
+                        :class="{ dynamic: block.type === 'dynamic' }"
+                    >
+                        <div class="content-block-header">
+                            <select
+                                v-model="block.type"
+                                class="block-type-select"
+                                @change="syncBlockType(block)"
+                            >
+                                <option value="static">static</option>
+                                <option value="dynamic">dynamic</option>
+                            </select>
+                            <div class="content-block-tools">
+                                <button
+                                    type="button"
+                                    aria-label="Move block up"
+                                    :disabled="index === 0"
+                                    @click="moveContentBlock(index, -1)"
+                                >
+                                    ^
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label="Move block down"
+                                    :disabled="index === prayer.contentBlocks.length - 1"
+                                    @click="moveContentBlock(index, 1)"
+                                >
+                                    v
+                                </button>
+                                <button
+                                    type="button"
+                                    class="remove-block-btn"
+                                    aria-label="Remove content block"
+                                    :disabled="prayer.contentBlocks.length <= 1"
+                                    @click="removeContentBlock(block.id)"
+                                >
+                                    <SvgTrash />
+                                </button>
+                            </div>
+                        </div>
+                        <textarea
+                            v-if="block.type === 'static'"
+                            v-model="block.body"
+                            placeholder="This content appears every day"
+                        />
+                        <div
+                            v-else
+                            class="dynamic-placeholder"
+                        >
+                            {{ getDynamicBlockLabel(block) }}
+                        </div>
+                    </section>
+                    <button
+                        type="button"
+                        class="add-content-block-btn"
+                        aria-label="Add content block"
+                        @click="addContentBlock('static')"
+                    >
+                        <SvgPlus size="30" />
+                    </button>
+                </div>
+                <section class="day-media-editor">
+                    <section
+                        v-for="day in prayer.days"
+                        :key="day.dayNumber"
+                        class="day-detail"
+                    >
+                        <div class="day-detail-header">
+                            <h4>Day {{ day.dayNumber }}</h4>
+                            <button
+                                type="button"
+                                class="remove-day-btn"
+                                aria-label="Remove day"
+                                :disabled="prayer.days.length <= 2"
+                                @click="removeDay(day.dayNumber)"
+                            >
+                                <SvgTrash />
+                            </button>
+                        </div>
+                        <input
+                            v-model="day.title"
+                            type="text"
+                            placeholder="Optional day title"
+                        />
+                        <label
+                            v-for="block in dynamicContentBlocks"
+                            :key="block.id"
+                            class="dynamic-day"
+                        >
+                            <span>{{ getDynamicBlockLabel(block) }}</span>
+                            <textarea
+                                v-model="getDynamicDay(block, day.dayNumber).body"
+                                placeholder="Content for this day"
+                            />
+                        </label>
+                        <input
+                            v-model="day.imageUrl"
+                            type="url"
+                            placeholder="Description image URL"
+                        />
                         <button
                             type="button"
-                            class="remove-day-btn"
-                            aria-label="Remove day"
-                            :disabled="prayer.days.length <= 2"
-                            @click="removeDay(day.dayNumber)"
+                            class="add-dynamic-section-btn"
+                            aria-label="Add dynamic section"
+                            @click="addContentBlock('dynamic')"
                         >
-                            <SvgTrash />
+                            <SvgPlus size="24" />
                         </button>
-                    </div>
-                    <input
-                        v-model="day.title"
-                        type="text"
-                        placeholder="Optional day title"
-                    />
-                    <textarea
-                        v-model="day.body"
-                        placeholder="Dynamic content for this day"
-                    />
-                    <input
-                        v-model="day.imageUrl"
-                        type="url"
-                        placeholder="Description image URL"
-                    />
+                    </section>
                 </section>
-                <button
-                    type="button"
-                    class="add-day-btn"
-                    aria-label="Add day"
-                    @click="addDay"
-                >
-                    <SvgPlus size="34" />
-                </button>
             </template>
             <div class="btns">
                 <button
@@ -327,17 +404,30 @@ async function onMoved(e) {
 }
 
 const showAddPrayerForm = ref(false);
+const createDynamicDays = (dayCount) =>
+    Array.from({ length: dayCount }, (_, index) => ({
+        dayNumber: index + 1,
+        body: '',
+    }));
+const createContentBlock = (type = 'static', dayCount = 2) => ({
+    id: `${Date.now()}-${Math.random()}`,
+    type,
+    body: '',
+    days: type === 'dynamic' ? createDynamicDays(dayCount) : [],
+});
 const initialState = () => ({
     title: null,
     body: null,
     isMultiDay: false,
     dayCount: 2,
+    contentBlocks: [createContentBlock('static'), createContentBlock('dynamic')],
     days: [
-        { dayNumber: 1, title: '', body: '', imageUrl: '' },
-        { dayNumber: 2, title: '', body: '', imageUrl: '' },
+        { dayNumber: 1, title: '', imageUrl: '' },
+        { dayNumber: 2, title: '', imageUrl: '' },
     ],
 });
 const prayer = reactive(initialState());
+const dynamicContentBlocks = computed(() => prayer.contentBlocks.filter((block) => block.type === 'dynamic'));
 const openMenuId = ref();
 const showBSOD = ref();
 const bsodRef = ref(null);
@@ -427,7 +517,6 @@ function syncDays() {
         prayer.days.push({
             dayNumber: prayer.days.length + 1,
             title: '',
-            body: '',
             imageUrl: '',
         });
     }
@@ -435,6 +524,24 @@ function syncDays() {
     prayer.days.splice(dayCount);
     prayer.days.forEach((day, index) => {
         day.dayNumber = index + 1;
+    });
+
+    prayer.contentBlocks.forEach((block) => {
+        if (block.type !== 'dynamic') {
+            return;
+        }
+
+        while (block.days.length < dayCount) {
+            block.days.push({
+                dayNumber: block.days.length + 1,
+                body: '',
+            });
+        }
+
+        block.days.splice(dayCount);
+        block.days.forEach((day, index) => {
+            day.dayNumber = index + 1;
+        });
     });
 }
 
@@ -463,6 +570,91 @@ function removeDay(dayNumber) {
     syncDays();
 }
 
+function addContentBlock(type) {
+    syncDays();
+    prayer.contentBlocks.push(createContentBlock(type, prayer.dayCount));
+}
+
+function syncBlockType(block) {
+    if (block.type === 'dynamic' && !block.days?.length) {
+        block.days = createDynamicDays(prayer.dayCount);
+    }
+
+    if (block.type === 'static') {
+        block.days = [];
+    }
+
+    syncDays();
+}
+
+function removeContentBlock(id) {
+    if (prayer.contentBlocks.length <= 1) {
+        return;
+    }
+
+    prayer.contentBlocks = prayer.contentBlocks.filter((block) => block.id !== id);
+}
+
+function moveContentBlock(index, direction) {
+    const nextIndex = index + direction;
+
+    if (nextIndex < 0 || nextIndex >= prayer.contentBlocks.length) {
+        return;
+    }
+
+    const [block] = prayer.contentBlocks.splice(index, 1);
+    prayer.contentBlocks.splice(nextIndex, 0, block);
+}
+
+function getDynamicDay(block, dayNumber) {
+    let day = block.days.find((item) => item.dayNumber === dayNumber);
+
+    if (!day) {
+        day = {
+            dayNumber,
+            body: '',
+        };
+        block.days.push(day);
+        block.days.sort((a, b) => a.dayNumber - b.dayNumber);
+    }
+
+    return day;
+}
+
+function getDynamicBlockLabel(block) {
+    const dynamicIndex = dynamicContentBlocks.value.findIndex((item) => item.id === block.id);
+    return `dynamic section ${dynamicIndex + 1}`;
+}
+
+function getDynamicDayBody(dayNumber) {
+    return prayer.contentBlocks
+        .filter((block) => block.type === 'dynamic')
+        .map((block) => block.days.find((day) => day.dayNumber === dayNumber)?.body?.trim() || '')
+        .filter(Boolean)
+        .join('\n\n');
+}
+
+function serializeContentBlocks() {
+    return prayer.contentBlocks.map((block) => {
+        if (block.type === 'dynamic') {
+            return {
+                id: block.id,
+                type: 'dynamic',
+                days: block.days.map((day) => ({
+                    dayNumber: day.dayNumber,
+                    body: day.body,
+                })),
+            };
+        }
+
+        return {
+            id: block.id,
+            type: 'static',
+            body: block.body,
+        };
+    });
+}
+
 function buildPrayerPayload() {
     if (!prayer.isMultiDay) {
         return {
@@ -476,14 +668,14 @@ function buildPrayerPayload() {
     const days = prayer.days.map((day) => ({
         dayNumber: day.dayNumber,
         title: day.title,
-        body: day.body,
+        body: getDynamicDayBody(day.dayNumber),
         imageUrl: day.imageUrl,
         contentMode: 'dynamic',
     }));
 
     return {
         title: prayer.title,
-        body: prayer.body,
+        contentBlocks: serializeContentBlocks(),
         days,
     };
 }
@@ -837,25 +1029,119 @@ function buildPrayerPayload() {
             }
         }
 
-        .day-editor {
+        .content-builder,
+        .day-media-editor {
             display: grid;
-            gap: 1rem;
-            padding: 1.6rem;
-            border: 1px solid var(--color-border-2);
-            border-radius: 0.8rem;
-
-            textarea {
-                min-height: 16rem;
-            }
+            gap: 1.4rem;
         }
 
-        .day-editor-header {
+        .content-builder-header,
+        .content-block-header,
+        .day-detail-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
         }
 
+        .content-block-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+
+            button {
+                display: grid;
+                place-items: center;
+                min-width: 4.4rem;
+                min-height: 4.4rem;
+                border: 1px solid var(--color-border-2);
+                border-radius: 0.8rem;
+                background: var(--color-surface-2);
+
+                &:disabled {
+                    cursor: not-allowed;
+                    opacity: 0.45;
+                }
+            }
+        }
+
+        .content-block {
+            display: grid;
+            gap: 1rem;
+            padding: 1.6rem;
+            border: 2px dashed var(--color-border-2);
+            border-radius: 0.8rem;
+            background: transparent;
+
+            textarea {
+                min-height: 18rem;
+                border-radius: 0.8rem;
+            }
+        }
+
+        .content-block.dynamic {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: fit-content;
+            max-width: 100%;
+            padding: 0.7rem;
+            border-style: solid;
+            background: var(--color-surface);
+        }
+
+        .block-type-select {
+            width: fit-content;
+            min-height: 3.8rem;
+            padding-inline: 1.2rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 0.6rem;
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-weight: 700;
+        }
+
+        .dynamic-placeholder {
+            padding-inline: 0.8rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+        }
+
+        .add-content-block-btn {
+            display: grid;
+            place-items: center;
+            width: min(18rem, 100%);
+            min-height: 5.6rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 0.8rem;
+            color: var(--color-text);
+            background: var(--color-surface);
+        }
+
+        .day-detail {
+            display: grid;
+            gap: 1.4rem;
+            padding: 2rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 1.2rem;
+            background: var(--color-surface);
+        }
+
+        .dynamic-day,
+        .day-detail {
+            span {
+                color: var(--color-text-muted);
+                font-size: 1.2rem;
+            }
+
+            textarea {
+                min-height: 12rem;
+                border-radius: 0.8rem;
+            }
+        }
+
+        .remove-block-btn,
         .remove-day-btn {
             display: grid;
             place-items: center;
@@ -870,6 +1156,16 @@ function buildPrayerPayload() {
                 cursor: not-allowed;
                 opacity: 0.45;
             }
+        }
+
+        .add-dynamic-section-btn {
+            display: grid;
+            place-items: center;
+            min-height: 4.2rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 0.6rem;
+            color: var(--color-text);
+            background: transparent;
         }
 
         .add-day-btn {

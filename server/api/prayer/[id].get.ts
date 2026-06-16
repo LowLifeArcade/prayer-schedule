@@ -56,16 +56,21 @@ export default defineEventHandler(async (event) => {
 
     const selectedDayBody = selectedDay?.body || '';
     const selectedDayContentMode = selectedDay?.content_mode || 'static';
+    const composedBlocks = parseContentBlocks(prayerRow.body);
     const usesLegacyStaticDayBody = selectedDay && selectedDayContentMode === 'static';
     const dynamicDayBody =
-        selectedDay && selectedDayContentMode === 'dynamic' && selectedDayBody !== prayerRow.body ? selectedDayBody : null;
+        selectedDay && selectedDayContentMode === 'dynamic' && selectedDayBody !== prayerRow.body && !composedBlocks.length
+            ? selectedDayBody
+            : null;
+    const selectedBlocks = composedBlocks.length ? renderSelectedBlocks(composedBlocks, selectedDay?.day_number || 1) : [];
 
     return {
         ...prayerRow,
-        body: usesLegacyStaticDayBody ? selectedDayBody : prayerRow.body,
+        body: composedBlocks.length ? selectedBlocks.map((block) => block.body).join('\n\n') : usesLegacyStaticDayBody ? selectedDayBody : prayerRow.body,
         selectedDayNumber: selectedDay?.day_number || 1,
         selectedDayTitle: selectedDay?.title || null,
         selectedDayBody: dynamicDayBody,
+        selectedBlocks,
         selectedDayImageUrl: selectedDay?.image_url || null,
         selectedDayContentMode,
         totalDays: days.rows.length || 1,
@@ -79,3 +84,42 @@ export default defineEventHandler(async (event) => {
         })),
     };
 });
+
+function parseContentBlocks(body: unknown) {
+    if (typeof body !== 'string') {
+        return [];
+    }
+
+    try {
+        const value = JSON.parse(body);
+
+        if (value?.kind !== 'prayer-content-blocks' || !Array.isArray(value.blocks)) {
+            return [];
+        }
+
+        return value.blocks;
+    } catch {
+        return [];
+    }
+}
+
+function renderSelectedBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
+    return blocks
+        .map((block) => {
+            if (block.type === 'dynamic') {
+                const body = block.days?.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+                return {
+                    id: block.id,
+                    type: 'dynamic',
+                    body,
+                };
+            }
+
+            return {
+                id: block.id,
+                type: 'static',
+                body: block.body || '',
+            };
+        })
+        .filter((block) => block.body);
+}

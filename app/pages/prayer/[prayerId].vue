@@ -42,16 +42,32 @@
             :alt="data.selectedDayTitle || data.title"
         />
         <h2
-            v-if="data?.selectedDayTitle && !data?.selectedDayBody"
+            v-if="data?.selectedDayTitle && !data?.selectedDayBody && !data?.selectedBlocks?.length"
             class="container"
         >
             {{ data.selectedDayTitle }}
         </h2>
-        <p class="container">
+        <div
+            v-if="data?.selectedBlocks?.length"
+            class="prayer-content container"
+        >
+            <h2 v-if="data?.selectedDayTitle">{{ data.selectedDayTitle }}</h2>
+            <p
+                v-for="block in data.selectedBlocks"
+                :key="block.id"
+                :class="{ dynamic: block.type === 'dynamic' }"
+            >
+                {{ block.body }}
+            </p>
+        </div>
+        <p
+            v-else
+            class="container"
+        >
             {{ data?.body }}
         </p>
         <section
-            v-if="data?.selectedDayBody"
+            v-if="data?.selectedDayBody && !data?.selectedBlocks?.length"
             class="day-content container"
         >
             <h2 v-if="data?.selectedDayTitle">{{ data.selectedDayTitle }}</h2>
@@ -191,10 +207,23 @@ async function onDone() {
         margin-bottom: 2rem;
     }
 
+    .prayer-content {
+        display: grid;
+        gap: 1.6rem;
+
+        p {
+            white-space: pre-wrap;
+        }
+    }
+
     .day-content {
         margin-top: 2.4rem;
         padding-top: 2.4rem;
         border-top: 1px solid var(--color-border-2);
+
+        p {
+            white-space: pre-wrap;
+        }
     }
 
     .actions {

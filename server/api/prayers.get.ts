@@ -10,8 +10,10 @@ export default defineEventHandler(async (event) => {
     // use KV to cache
     const prayers = await db.sql`
         SELECT
-            p.id, p.title, p.preview, pp.pos
+            p.id, p.title, p.preview, pb.body, pp.pos
         FROM prayers p
+        JOIN prayer_bodies pb
+            ON pb.prayer_id = p.id
         JOIN prayer_positions pp
             ON pp.prayer_id = p.id
         WHERE p.user_id = ${session.user.uid}
@@ -63,9 +65,14 @@ export default defineEventHandler(async (event) => {
         const prayerDays = daysByPrayer.get(prayer.id) || [];
         const completedDays = new Set((completedByPrayer.get(prayer.id) || []).map((item) => item.day_number));
         const currentDay = prayerDays.find((day) => !completedDays.has(day.day_number)) || prayerDays.at(-1);
+        const composedBlocks = parseContentBlocks(prayer.body);
+        const composedPreview = composedBlocks.length
+            ? renderContentBlocks(composedBlocks, currentDay?.day_number || 1).substring(0, 200)
+            : null;
+        const { body: _body, ...prayerSummary } = prayer;
 
         return {
-            ...prayer,
+            ...prayerSummary,
             days: prayerDays.map((day) => ({
                 dayNumber: day.day_number,
                 isComplete: completedDays.has(day.day_number),
@@ -74,9 +81,41 @@ export default defineEventHandler(async (event) => {
             completedDays: completedDays.size,
             currentDayNumber: currentDay?.day_number || 1,
             currentDayPreview:
-                currentDay?.content_mode === 'static' ? currentDay.body?.substring(0, 200) || prayer.preview : prayer.preview,
+                composedPreview ||
+                (currentDay?.content_mode === 'static' ? currentDay.body?.substring(0, 200) || prayer.preview : prayer.preview),
             currentDayImageUrl: currentDay?.image_url || null,
             hasDynamicContent: prayerDays.some((day) => day.content_mode === 'dynamic'),
         };
     });
 });
+
+function parseContentBlocks(body: unknown) {
+    if (typeof body !== 'string') {
+        return [];
+    }
+
+    try {
+        const value = JSON.parse(body);
+
+        if (value?.kind !== 'prayer-content-blocks' || !Array.isArray(value.blocks)) {
+            return [];
+        }
+
+        return value.blocks;
+    } catch {
+        return [];
+    }
+}
+
+function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
+    return blocks
+        .map((block) => {
+            if (block.type === 'dynamic') {
+                return block.days?.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+            }
+
+            return block.body || '';
+        })
+        .filter(Boolean)
+        .join('\n\n');
+}
