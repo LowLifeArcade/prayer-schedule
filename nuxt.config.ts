@@ -26,7 +26,7 @@ export default defineNuxtConfig({
             },
         },
         cloudflare: {
-            deployConfig: true,
+            deployConfig: false,
             nodeCompat: true,
         },
         typescript: {
