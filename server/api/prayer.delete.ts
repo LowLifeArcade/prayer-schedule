@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
 
     try {
         const { error, success, changes, rows } = await db.sql`
-            UPDATE prayers SET deleted_at = (unixepoch()) WHERE id = ${id as number}
+            UPDATE prayers
+            SET deleted_at = (unixepoch())
+            WHERE id = ${id}
+                AND user_id = ${user.uid}
         `;
 
         if (!success) {

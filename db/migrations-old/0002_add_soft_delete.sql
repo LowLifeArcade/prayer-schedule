@@ -1,3 +1,0 @@
--- Migration number: 0002 	 2026-03-17T22:58:52.196Z
-ALTER TABLE prayers
-ADD COLUMN deleted_at TIMESTAMP DEFAULT NULL; 

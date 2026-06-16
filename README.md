@@ -38,6 +38,23 @@ yarn dev
 bun run dev
 ```
 
+## Database
+
+Database structure is managed through D1 migrations in `db/migrations`.
+
+```bash
+npm run db:migrate:local
+npm run db:migrate:remote
+```
+
+For a local rebuild with seed data:
+
+```bash
+npm run db:fresh
+```
+
+`db/dev/schema.sql` is kept as a local reference/reset schema only; do not use it to build production.
+
 ## Production
 
 Build the application for production:

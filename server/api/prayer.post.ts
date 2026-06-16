@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    const { title, body, listName = 'default' } = await readBody(event);
+    const { title, body, days = [], listName = 'default' } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
 
@@ -10,14 +10,27 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayerId = uuidv7();
-    const preview = body.substring(0, 200);
+    const normalizedDays = Array.isArray(days)
+        ? days
+              .map((day, index) => ({
+                  dayNumber: Number(day.dayNumber || index + 1),
+                  title: day.title?.trim() || null,
+                  body: day.body?.trim() || '',
+                  imageUrl: day.imageUrl?.trim() || null,
+                  contentMode: day.contentMode === 'dynamic' ? 'dynamic' : 'static',
+              }))
+              .filter((day) => day.body)
+              .sort((a, b) => a.dayNumber - b.dayNumber)
+        : [];
+    const firstBody = normalizedDays[0]?.body || body || '';
+    const preview = firstBody.substring(0, 200);
 
     try {
-        const [result] = await d1.batch([
+        const statements = [
             d1
                 .prepare('INSERT INTO prayers (id, title, user_id, preview) VALUES (?, ?, ?, ?)')
                 .bind(prayerId, title, user.uid, preview),
-            d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, body),
+            d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, firstBody),
             d1
                 .prepare(`
                     INSERT INTO prayer_positions (user_id, prayer_id, list_name, pos)
@@ -31,7 +44,17 @@ export default defineEventHandler(async (event) => {
                         )
                     )`)
                 .bind(user.uid, prayerId, listName, user.uid, listName),
-        ]);
+            ...normalizedDays.map((day) =>
+                d1
+                    .prepare(
+                        `INSERT INTO prayer_days (prayer_id, day_number, title, body, image_url, content_mode)
+                         VALUES (?, ?, ?, ?, ?, ?)`,
+                    )
+                    .bind(prayerId, day.dayNumber, day.title, day.body, day.imageUrl, day.contentMode),
+            ),
+        ];
+
+        const [result] = await d1.batch(statements);
 
         if (!result?.success) {
             console.error({ error: result?.error });
@@ -42,5 +65,5 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not add prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id: prayerId, title, body };
+    return { message: 'success', id: prayerId, title, body: firstBody, days: normalizedDays };
 });

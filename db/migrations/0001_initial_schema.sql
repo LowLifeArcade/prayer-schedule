@@ -1,13 +1,5 @@
--- Local development reset schema.
--- Production and rebuildable database setup should use db/migrations.
-
-DROP TABLE IF EXISTS prayer_progress;
-DROP TABLE IF EXISTS prayer_days;
-DROP TABLE IF EXISTS prayer_bodies;
-DROP TABLE IF EXISTS prayer_positions;
-DROP TABLE IF EXISTS prayers;
-DROP TABLE IF EXISTS user_identities;
-DROP TABLE IF EXISTS users;
+-- Base schema for a new PRAYERS database.
+-- This migration intentionally matches the app's current production shape.
 
 CREATE TABLE IF NOT EXISTS users (
     uid TEXT PRIMARY KEY,
@@ -46,22 +38,4 @@ CREATE TABLE IF NOT EXISTS prayer_positions (
     pos INTEGER NOT NULL,
     PRIMARY KEY (list_name, user_id, prayer_id),
     UNIQUE (user_id, list_name, pos)
-);
-
-CREATE TABLE IF NOT EXISTS prayer_days (
-    prayer_id TEXT NOT NULL REFERENCES prayers(id),
-    day_number INTEGER NOT NULL,
-    title TEXT,
-    body TEXT NOT NULL,
-    image_url TEXT,
-    content_mode TEXT NOT NULL DEFAULT 'static' CHECK(content_mode IN ('static', 'dynamic')),
-    PRIMARY KEY (prayer_id, day_number)
-);
-
-CREATE TABLE IF NOT EXISTS prayer_progress (
-    user_id TEXT NOT NULL REFERENCES users(uid),
-    prayer_id TEXT NOT NULL REFERENCES prayers(id),
-    day_number INTEGER NOT NULL,
-    completed_at INTEGER NOT NULL DEFAULT (unixepoch()),
-    PRIMARY KEY (user_id, prayer_id, day_number)
 );

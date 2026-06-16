@@ -65,10 +65,17 @@
                 element="ul"
                 @end="onMoved"
             >
-                <li v-for="({ title, preview, id, pos }, i) in sortedPrayers">
+                <li v-for="(item, i) in sortedPrayers">
                     <div class="prayer">
+                        <img
+                            v-if="item.currentDayImageUrl"
+                            class="prayer-image"
+                            :src="item.currentDayImageUrl"
+                            :alt="item.title"
+                            @click="onPrayerClick(item.id, item.currentDayNumber)"
+                        />
                         <div class="title">
-                            <h3 @click="onPrayerClick(id)">{{ title }}</h3>
+                            <h3 @click="onPrayerClick(item.id, item.currentDayNumber)">{{ item.title }}</h3>
                             <span class="ctx-menu-section">
                                 <SvgDots
                                     class="ctx-menu-btn"
@@ -85,7 +92,7 @@
                                         <li>Open</li>
                                         <li
                                             class="delete danger"
-                                            @click="onDelete(id)"
+                                            @click="onDelete(item.id)"
                                         >
                                             Delete <SvgTrash />
                                         </li>
@@ -93,7 +100,31 @@
                                 </div>
                             </span>
                         </div>
-                        <p @click="onPrayerClick(id)">{{ preview }}</p>
+                        <p @click="onPrayerClick(item.id, item.currentDayNumber)">
+                            {{ item.currentDayPreview || item.preview }}
+                        </p>
+                        <div
+                            v-if="item.totalDays > 1"
+                            class="day-picker"
+                            @click.stop
+                        >
+                            <span>Day</span>
+                            <div class="day-options">
+                                <button
+                                    v-for="day in item.days"
+                                    :key="day.dayNumber"
+                                    type="button"
+                                    class="day-option"
+                                    :class="{
+                                        current: day.dayNumber === item.currentDayNumber,
+                                        complete: day.isComplete,
+                                    }"
+                                    @click="onDaySelect(item.id, day.dayNumber)"
+                                >
+                                    <span>{{ day.dayNumber }}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </li>
                 <li v-if="!showAddPrayerForm">
@@ -126,6 +157,7 @@
             <label
                 for="body"
                 class="title"
+                v-if="!prayer.isMultiDay"
             >
                 <h4>Prayer</h4>
                 <textarea
@@ -134,6 +166,89 @@
                     name="body"
                 />
             </label>
+            <label class="check-row">
+                <input
+                    v-model="prayer.isMultiDay"
+                    type="checkbox"
+                />
+                Multi day prayer
+            </label>
+            <template v-if="prayer.isMultiDay">
+                <label
+                    for="dayCount"
+                    class="title"
+                >
+                    <h4>Days</h4>
+                    <input
+                        v-model.number="prayer.dayCount"
+                        type="number"
+                        name="dayCount"
+                        min="2"
+                        @input="syncDays"
+                    />
+                </label>
+                <label
+                    for="contentMode"
+                    class="title"
+                >
+                    <h4>Content</h4>
+                    <select
+                        v-model="prayer.contentMode"
+                        name="contentMode"
+                        @change="syncDays"
+                    >
+                        <option value="static">Static day by day</option>
+                        <option value="dynamic">Dynamic per day</option>
+                    </select>
+                </label>
+                <template v-if="prayer.contentMode === 'dynamic'">
+                    <label
+                        for="dynamicTemplate"
+                        class="title"
+                    >
+                        <h4>Dynamic Prayer Template</h4>
+                        <textarea
+                            v-model="prayer.dynamicTemplate"
+                            name="dynamicTemplate"
+                            placeholder="Use {{day}} and {{totalDays}} where the day should appear."
+                        />
+                    </label>
+                    <label
+                        for="imageUrl"
+                        class="title"
+                    >
+                        <h4>Description Image URL</h4>
+                        <input
+                            v-model="prayer.imageUrl"
+                            type="url"
+                            name="imageUrl"
+                        />
+                    </label>
+                </template>
+                <template v-else>
+                    <section
+                        v-for="day in prayer.days"
+                        :key="day.dayNumber"
+                        class="day-editor"
+                    >
+                        <h4>Day {{ day.dayNumber }}</h4>
+                        <input
+                            v-model="day.title"
+                            type="text"
+                            placeholder="Optional day title"
+                        />
+                        <textarea
+                            v-model="day.body"
+                            placeholder="Prayer for this day"
+                        />
+                        <input
+                            v-model="day.imageUrl"
+                            type="url"
+                            placeholder="Description image URL"
+                        />
+                    </section>
+                </template>
+            </template>
             <div class="btns">
                 <button
                     class="btn form"
@@ -159,7 +274,7 @@ const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, sessio
 const router = useRouter();
 
 const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
-const sortedPrayers = computed(() => prayers.value.sort((a, b) => (a.pos > b.pos ? 1 : -1)));
+const sortedPrayers = computed(() => [...(prayers.value || [])].sort((a, b) => (a.pos > b.pos ? 1 : -1)));
 
 async function onMoved(e) {
     const prayersArr = prayers.value;
@@ -192,6 +307,15 @@ const showAddPrayerForm = ref(false);
 const initialState = () => ({
     title: null,
     body: null,
+    isMultiDay: false,
+    dayCount: 2,
+    contentMode: 'static',
+    dynamicTemplate: '',
+    imageUrl: '',
+    days: [
+        { dayNumber: 1, title: '', body: '', imageUrl: '' },
+        { dayNumber: 2, title: '', body: '', imageUrl: '' },
+    ],
 });
 const prayer = reactive(initialState());
 const openMenuIndex = ref();
@@ -220,14 +344,19 @@ async function onLogout() {
     refresh();
 }
 
-function onPrayerClick(prayerId) {
+function onPrayerClick(prayerId, dayNumber) {
     closeMenu();
     router.push({
         name: 'prayer-prayerId',
         params: {
             prayerId,
         },
+        query: dayNumber ? { day: dayNumber } : undefined,
     });
+}
+
+function onDaySelect(prayerId, dayNumber) {
+    onPrayerClick(prayerId, dayNumber);
 }
 
 async function onLogoClick() {
@@ -238,9 +367,10 @@ async function onLogoClick() {
 
 async function onAddPrayer() {
     try {
+        const payload = buildPrayerPayload();
         await $fetch('/api/prayer', {
             method: 'post',
-            body: prayer,
+            body: payload,
         });
         showAddPrayerForm.value = false;
         Object.assign(prayer, initialState());
@@ -264,6 +394,65 @@ async function onDelete(id) {
 
     closeMenu();
     refresh();
+}
+
+function syncDays() {
+    const dayCount = Math.max(Number(prayer.dayCount) || 2, 2);
+    prayer.dayCount = dayCount;
+
+    while (prayer.days.length < dayCount) {
+        prayer.days.push({
+            dayNumber: prayer.days.length + 1,
+            title: '',
+            body: '',
+            imageUrl: '',
+        });
+    }
+
+    prayer.days.splice(dayCount);
+    prayer.days.forEach((day, index) => {
+        day.dayNumber = index + 1;
+    });
+}
+
+function renderDynamicTemplate(dayNumber) {
+    return prayer.dynamicTemplate
+        .replaceAll('{{day}}', String(dayNumber))
+        .replaceAll('{{totalDays}}', String(prayer.dayCount));
+}
+
+function buildPrayerPayload() {
+    if (!prayer.isMultiDay) {
+        return {
+            title: prayer.title,
+            body: prayer.body,
+        };
+    }
+
+    syncDays();
+
+    const days =
+        prayer.contentMode === 'dynamic'
+            ? Array.from({ length: prayer.dayCount }, (_, index) => ({
+                  dayNumber: index + 1,
+                  title: `Day ${index + 1}`,
+                  body: renderDynamicTemplate(index + 1),
+                  imageUrl: prayer.imageUrl,
+                  contentMode: 'dynamic',
+              }))
+            : prayer.days.map((day) => ({
+                  dayNumber: day.dayNumber,
+                  title: day.title,
+                  body: day.body,
+                  imageUrl: day.imageUrl,
+                  contentMode: 'static',
+              }));
+
+    return {
+        title: prayer.title,
+        body: days[0]?.body || '',
+        days,
+    };
 }
 </script>
 
@@ -367,12 +556,21 @@ async function onDelete(id) {
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            gap: 1rem;
+
+            .prayer-image {
+                width: 100%;
+                aspect-ratio: 4 / 3;
+                object-fit: cover;
+                border-radius: 0.8rem;
+                margin-bottom: 0.5rem;
+            }
 
             .title {
-                margin-bottom: 1rem;
                 display: flex;
                 align-items: flex-start;
                 justify-content: space-between;
+                width: 100%;
 
                 h3 {
                     cursor: pointer;
@@ -414,10 +612,62 @@ async function onDelete(id) {
                 }
             }
 
+            .day-picker {
+                display: grid;
+                gap: 0.7rem;
+                cursor: default;
+                font-size: 1.2rem;
+                margin-top: auto;
+                width: 100%;
+
+                > span {
+                    color: var(--color-text-muted);
+                }
+
+                .day-options {
+                    display: flex;
+                    gap: 0.5rem;
+                    overflow-x: auto;
+                    padding-bottom: 0.2rem;
+                }
+
+                .day-option {
+                    --day-bg: var(--color-surface-2);
+                    flex: 0 0 auto;
+                    display: grid;
+                    place-items: center;
+                    width: 3rem;
+                    height: 3rem;
+                    border: 1px solid var(--color-border-2);
+                    border-radius: 999px;
+                    background: var(--day-bg);
+                    color: var(--color-text);
+                    cursor: pointer;
+                    transition:
+                        background-color 160ms ease,
+                        border-color 160ms ease,
+                        transform 160ms ease;
+
+                    &:hover {
+                        transform: translateY(-1px);
+                    }
+
+                    &.current {
+                        border-color: var(--color-text);
+                        box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-text) 16%, transparent);
+                    }
+
+                    &.complete {
+                        color: var(--color-text-alt);
+                        background: var(--color-text);
+                    }
+                }
+            }
+
             p {
                 text-overflow: ellipsis;
-                flex: auto;
-                max-width: 200px;
+                flex: 1 1 auto;
+                width: 100%;
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -458,6 +708,24 @@ async function onDelete(id) {
             field-sizing: content;
             min-height: 50rem;
             resize: none;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .day-editor {
+            display: grid;
+            gap: 1rem;
+            padding: 1.6rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 0.8rem;
+
+            textarea {
+                min-height: 16rem;
+            }
         }
 
         .btns {
