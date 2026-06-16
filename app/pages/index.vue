@@ -154,6 +154,15 @@
                     name="title"
                 />
             </label>
+            <label class="toggle-row">
+                <span>Multi day prayer</span>
+                <input
+                    v-model="prayer.isMultiDay"
+                    type="checkbox"
+                    role="switch"
+                />
+                <span class="toggle-track"></span>
+            </label>
             <label
                 for="body"
                 class="title"
@@ -166,27 +175,35 @@
                     name="body"
                 />
             </label>
-            <label class="check-row">
-                <input
-                    v-model="prayer.isMultiDay"
-                    type="checkbox"
-                />
-                Multi day prayer
-            </label>
             <template v-if="prayer.isMultiDay">
-                <label
-                    for="dayCount"
-                    class="title"
-                >
+                <div class="title">
                     <h4>Days</h4>
-                    <input
-                        v-model.number="prayer.dayCount"
-                        type="number"
-                        name="dayCount"
-                        min="2"
-                        @input="syncDays"
-                    />
-                </label>
+                    <div class="day-stepper">
+                        <button
+                            type="button"
+                            aria-label="Remove a day"
+                            :disabled="prayer.dayCount <= 2"
+                            @click="changeDayCount(-1)"
+                        >
+                            -
+                        </button>
+                        <input
+                            v-model.number="prayer.dayCount"
+                            type="number"
+                            name="dayCount"
+                            inputmode="numeric"
+                            min="2"
+                            @input="syncDays"
+                        />
+                        <button
+                            type="button"
+                            aria-label="Add a day"
+                            @click="changeDayCount(1)"
+                        >
+                            +
+                        </button>
+                    </div>
+                </div>
                 <label
                     for="contentMode"
                     class="title"
@@ -231,7 +248,18 @@
                         :key="day.dayNumber"
                         class="day-editor"
                     >
-                        <h4>Day {{ day.dayNumber }}</h4>
+                        <div class="day-editor-header">
+                            <h4>Day {{ day.dayNumber }}</h4>
+                            <button
+                                type="button"
+                                class="remove-day-btn"
+                                aria-label="Remove day"
+                                :disabled="prayer.days.length <= 2"
+                                @click="removeDay(day.dayNumber)"
+                            >
+                                <SvgTrash />
+                            </button>
+                        </div>
                         <input
                             v-model="day.title"
                             type="text"
@@ -247,16 +275,26 @@
                             placeholder="Description image URL"
                         />
                     </section>
+                    <button
+                        type="button"
+                        class="add-day-btn"
+                        aria-label="Add day"
+                        @click="addDay"
+                    >
+                        <SvgPlus size="34" />
+                    </button>
                 </template>
             </template>
             <div class="btns">
                 <button
+                    type="button"
                     class="btn form"
                     @click="onAddPrayer"
                 >
                     Create
                 </button>
                 <button
+                    type="button"
                     class="btn cancel"
                     @click="showAddPrayerForm = false"
                 >
@@ -413,6 +451,31 @@ function syncDays() {
     prayer.days.forEach((day, index) => {
         day.dayNumber = index + 1;
     });
+}
+
+function changeDayCount(amount) {
+    prayer.dayCount = Math.max(Number(prayer.dayCount) + amount || 2, 2);
+    syncDays();
+}
+
+function addDay() {
+    prayer.dayCount = prayer.days.length + 1;
+    syncDays();
+}
+
+function removeDay(dayNumber) {
+    if (prayer.days.length <= 2) {
+        return;
+    }
+
+    const dayIndex = prayer.days.findIndex((day) => day.dayNumber === dayNumber);
+    if (dayIndex === -1) {
+        return;
+    }
+
+    prayer.days.splice(dayIndex, 1);
+    prayer.dayCount = prayer.days.length;
+    syncDays();
 }
 
 function renderDynamicTemplate(dayNumber) {
@@ -710,10 +773,98 @@ function buildPrayerPayload() {
             resize: none;
         }
 
-        .check-row {
+        .toggle-row {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: space-between;
+            gap: 1.5rem;
+            width: 100%;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid var(--color-border-2);
+            border-radius: 0.8rem;
+            background: var(--color-surface);
+            cursor: pointer;
+
+            input {
+                position: absolute;
+                right: 1.6rem;
+                width: 5rem;
+                height: 3rem;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+            .toggle-track {
+                position: relative;
+                width: 5rem;
+                height: 3rem;
+                flex: 0 0 auto;
+                border: 1px solid var(--color-border-2);
+                border-radius: 999px;
+                background: var(--color-surface-2);
+                transition:
+                    background-color 160ms ease,
+                    border-color 160ms ease;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 0.3rem;
+                    left: 0.3rem;
+                    width: 2.2rem;
+                    height: 2.2rem;
+                    border-radius: 999px;
+                    background: var(--color-text-alt);
+                    box-shadow: 0 1px 4px rgba(0 0 0 / 0.25);
+                    transition: transform 160ms ease;
+                }
+            }
+
+            input:checked + .toggle-track {
+                border-color: var(--color-text);
+                background: var(--color-text);
+
+                &::after {
+                    transform: translateX(2rem);
+                }
+            }
+
+            input:focus-visible + .toggle-track {
+                outline: 2px solid var(--color-text);
+                outline-offset: 3px;
+            }
+        }
+
+        .day-stepper {
+            display: grid;
+            grid-template-columns: 5rem minmax(0, 1fr) 5rem;
+            gap: 0.8rem;
+
+            button,
+            input {
+                min-height: 5rem;
+            }
+
+            button {
+                display: grid;
+                place-items: center;
+                border: 1px solid var(--color-border-2);
+                border-radius: 0.8rem;
+                background: var(--color-surface-2);
+                font-size: 2.4rem;
+                font-weight: 700;
+                line-height: 1;
+
+                &:disabled {
+                    cursor: not-allowed;
+                    opacity: 0.45;
+                }
+            }
+
+            input {
+                text-align: center;
+            }
         }
 
         .day-editor {
@@ -726,6 +877,39 @@ function buildPrayerPayload() {
             textarea {
                 min-height: 16rem;
             }
+        }
+
+        .day-editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .remove-day-btn {
+            display: grid;
+            place-items: center;
+            width: 4.4rem;
+            height: 4.4rem;
+            border: 1px solid var(--danger-border);
+            border-radius: 0.8rem;
+            color: var(--danger-text);
+            background: var(--danger-bg);
+
+            &:disabled {
+                cursor: not-allowed;
+                opacity: 0.45;
+            }
+        }
+
+        .add-day-btn {
+            display: grid;
+            place-items: center;
+            min-height: 7rem;
+            border: 1px dashed var(--color-border-2);
+            border-radius: 0.8rem;
+            color: var(--color-text);
+            background: var(--color-surface);
         }
 
         .btns {
