@@ -59,6 +59,9 @@
             <VueDraggable
                 v-model="prayers"
                 class="prayers"
+                :delay="250"
+                :delay-on-touch-only="true"
+                :touch-start-threshold="8"
                 element="ul"
                 @end="onMoved"
             >
