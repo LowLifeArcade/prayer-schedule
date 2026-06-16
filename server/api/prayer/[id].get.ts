@@ -54,13 +54,20 @@ export default defineEventHandler(async (event) => {
         days.rows.find((item) => !completedDays.has(item.day_number)) ||
         days.rows.at(-1);
 
+    const selectedDayBody = selectedDay?.body || '';
+    const selectedDayContentMode = selectedDay?.content_mode || 'static';
+    const usesLegacyStaticDayBody = selectedDay && selectedDayContentMode === 'static';
+    const dynamicDayBody =
+        selectedDay && selectedDayContentMode === 'dynamic' && selectedDayBody !== prayerRow.body ? selectedDayBody : null;
+
     return {
         ...prayerRow,
-        body: selectedDay?.body || prayerRow.body,
+        body: usesLegacyStaticDayBody ? selectedDayBody : prayerRow.body,
         selectedDayNumber: selectedDay?.day_number || 1,
         selectedDayTitle: selectedDay?.title || null,
+        selectedDayBody: dynamicDayBody,
         selectedDayImageUrl: selectedDay?.image_url || null,
-        selectedDayContentMode: selectedDay?.content_mode || 'static',
+        selectedDayContentMode,
         totalDays: days.rows.length || 1,
         completedDays: progress.rows.map((item) => item.day_number),
         days: days.rows.map((item) => ({

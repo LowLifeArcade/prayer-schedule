@@ -169,13 +169,13 @@
             <label
                 for="body"
                 class="title"
-                v-if="!prayer.isMultiDay"
             >
                 <h4>Prayer</h4>
                 <textarea
                     v-model="prayer.body"
                     type="text"
                     name="body"
+                    :placeholder="prayer.isMultiDay ? 'This prayer appears every day.' : ''"
                 />
             </label>
             <template v-if="prayer.isMultiDay">
@@ -207,86 +207,46 @@
                         </button>
                     </div>
                 </div>
-                <label
-                    for="contentMode"
-                    class="title"
+                <section
+                    v-for="day in prayer.days"
+                    :key="day.dayNumber"
+                    class="day-editor"
                 >
-                    <h4>Content</h4>
-                    <select
-                        v-model="prayer.contentMode"
-                        name="contentMode"
-                        @change="syncDays"
-                    >
-                        <option value="static">Static day by day</option>
-                        <option value="dynamic">Dynamic per day</option>
-                    </select>
-                </label>
-                <template v-if="prayer.contentMode === 'dynamic'">
-                    <label
-                        for="dynamicTemplate"
-                        class="title"
-                    >
-                        <h4>Dynamic Prayer Template</h4>
-                        <textarea
-                            v-model="prayer.dynamicTemplate"
-                            name="dynamicTemplate"
-                            placeholder="Use {{day}} and {{totalDays}} where the day should appear."
-                        />
-                    </label>
-                    <label
-                        for="imageUrl"
-                        class="title"
-                    >
-                        <h4>Description Image URL</h4>
-                        <input
-                            v-model="prayer.imageUrl"
-                            type="url"
-                            name="imageUrl"
-                        />
-                    </label>
-                </template>
-                <template v-else>
-                    <section
-                        v-for="day in prayer.days"
-                        :key="day.dayNumber"
-                        class="day-editor"
-                    >
-                        <div class="day-editor-header">
-                            <h4>Day {{ day.dayNumber }}</h4>
-                            <button
-                                type="button"
-                                class="remove-day-btn"
-                                aria-label="Remove day"
-                                :disabled="prayer.days.length <= 2"
-                                @click="removeDay(day.dayNumber)"
-                            >
-                                <SvgTrash />
-                            </button>
-                        </div>
-                        <input
-                            v-model="day.title"
-                            type="text"
-                            placeholder="Optional day title"
-                        />
-                        <textarea
-                            v-model="day.body"
-                            placeholder="Prayer for this day"
-                        />
-                        <input
-                            v-model="day.imageUrl"
-                            type="url"
-                            placeholder="Description image URL"
-                        />
-                    </section>
-                    <button
-                        type="button"
-                        class="add-day-btn"
-                        aria-label="Add day"
-                        @click="addDay"
-                    >
-                        <SvgPlus size="34" />
-                    </button>
-                </template>
+                    <div class="day-editor-header">
+                        <h4>Day {{ day.dayNumber }}</h4>
+                        <button
+                            type="button"
+                            class="remove-day-btn"
+                            aria-label="Remove day"
+                            :disabled="prayer.days.length <= 2"
+                            @click="removeDay(day.dayNumber)"
+                        >
+                            <SvgTrash />
+                        </button>
+                    </div>
+                    <input
+                        v-model="day.title"
+                        type="text"
+                        placeholder="Optional day title"
+                    />
+                    <textarea
+                        v-model="day.body"
+                        placeholder="Dynamic content for this day"
+                    />
+                    <input
+                        v-model="day.imageUrl"
+                        type="url"
+                        placeholder="Description image URL"
+                    />
+                </section>
+                <button
+                    type="button"
+                    class="add-day-btn"
+                    aria-label="Add day"
+                    @click="addDay"
+                >
+                    <SvgPlus size="34" />
+                </button>
             </template>
             <div class="btns">
                 <button
@@ -372,9 +332,6 @@ const initialState = () => ({
     body: null,
     isMultiDay: false,
     dayCount: 2,
-    contentMode: 'static',
-    dynamicTemplate: '',
-    imageUrl: '',
     days: [
         { dayNumber: 1, title: '', body: '', imageUrl: '' },
         { dayNumber: 2, title: '', body: '', imageUrl: '' },
@@ -506,12 +463,6 @@ function removeDay(dayNumber) {
     syncDays();
 }
 
-function renderDynamicTemplate(dayNumber) {
-    return prayer.dynamicTemplate
-        .replaceAll('{{day}}', String(dayNumber))
-        .replaceAll('{{totalDays}}', String(prayer.dayCount));
-}
-
 function buildPrayerPayload() {
     if (!prayer.isMultiDay) {
         return {
@@ -522,26 +473,17 @@ function buildPrayerPayload() {
 
     syncDays();
 
-    const days =
-        prayer.contentMode === 'dynamic'
-            ? Array.from({ length: prayer.dayCount }, (_, index) => ({
-                  dayNumber: index + 1,
-                  title: `Day ${index + 1}`,
-                  body: renderDynamicTemplate(index + 1),
-                  imageUrl: prayer.imageUrl,
-                  contentMode: 'dynamic',
-              }))
-            : prayer.days.map((day) => ({
-                  dayNumber: day.dayNumber,
-                  title: day.title,
-                  body: day.body,
-                  imageUrl: day.imageUrl,
-                  contentMode: 'static',
-              }));
+    const days = prayer.days.map((day) => ({
+        dayNumber: day.dayNumber,
+        title: day.title,
+        body: day.body,
+        imageUrl: day.imageUrl,
+        contentMode: 'dynamic',
+    }));
 
     return {
         title: prayer.title,
-        body: days[0]?.body || '',
+        body: prayer.body,
         days,
     };
 }

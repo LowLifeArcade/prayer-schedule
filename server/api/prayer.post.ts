@@ -22,15 +22,15 @@ export default defineEventHandler(async (event) => {
               .filter((day) => day.body)
               .sort((a, b) => a.dayNumber - b.dayNumber)
         : [];
-    const firstBody = normalizedDays[0]?.body || body || '';
-    const preview = firstBody.substring(0, 200);
+    const prayerBody = body?.trim() || '';
+    const preview = (prayerBody || normalizedDays[0]?.body || '').substring(0, 200);
 
     try {
         const statements = [
             d1
                 .prepare('INSERT INTO prayers (id, title, user_id, preview) VALUES (?, ?, ?, ?)')
                 .bind(prayerId, title, user.uid, preview),
-            d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, firstBody),
+            d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, prayerBody),
             d1
                 .prepare(`
                     INSERT INTO prayer_positions (user_id, prayer_id, list_name, pos)
@@ -65,5 +65,5 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not add prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id: prayerId, title, body: firstBody, days: normalizedDays };
+    return { message: 'success', id: prayerId, title, body: prayerBody, days: normalizedDays };
 });

@@ -34,12 +34,6 @@
                     </button>
                 </div>
             </div>
-            <span
-                v-if="data.selectedDayContentMode === 'dynamic'"
-                class="dynamic-label"
-            >
-                Dynamic
-            </span>
         </div>
         <img
             v-if="data?.selectedDayImageUrl"
@@ -48,7 +42,7 @@
             :alt="data.selectedDayTitle || data.title"
         />
         <h2
-            v-if="data?.selectedDayTitle"
+            v-if="data?.selectedDayTitle && !data?.selectedDayBody"
             class="container"
         >
             {{ data.selectedDayTitle }}
@@ -56,6 +50,13 @@
         <p class="container">
             {{ data?.body }}
         </p>
+        <section
+            v-if="data?.selectedDayBody"
+            class="day-content container"
+        >
+            <h2 v-if="data?.selectedDayTitle">{{ data.selectedDayTitle }}</h2>
+            <p>{{ data.selectedDayBody }}</p>
+        </section>
         <div class="actions container">
             <button
                 class="done-btn"
@@ -181,13 +182,6 @@ async function onDone() {
         }
     }
 
-    .dynamic-label {
-        border: 1px solid var(--color-border-2);
-        border-radius: 0.6rem;
-        padding: 0.4rem 0.8rem;
-        font-size: 1.2rem;
-    }
-
     .description-image {
         display: block;
         width: min(100%, 72rem);
@@ -195,6 +189,12 @@ async function onDone() {
         object-fit: cover;
         border-radius: 0.8rem;
         margin-bottom: 2rem;
+    }
+
+    .day-content {
+        margin-top: 2.4rem;
+        padding-top: 2.4rem;
+        border-top: 1px solid var(--color-border-2);
     }
 
     .actions {

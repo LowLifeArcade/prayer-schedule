@@ -73,7 +73,8 @@ export default defineEventHandler(async (event) => {
             totalDays: prayerDays.length || 1,
             completedDays: completedDays.size,
             currentDayNumber: currentDay?.day_number || 1,
-            currentDayPreview: currentDay?.body?.substring(0, 200) || prayer.preview,
+            currentDayPreview:
+                currentDay?.content_mode === 'static' ? currentDay.body?.substring(0, 200) || prayer.preview : prayer.preview,
             currentDayImageUrl: currentDay?.image_url || null,
             hasDynamicContent: prayerDays.some((day) => day.content_mode === 'dynamic'),
         };
