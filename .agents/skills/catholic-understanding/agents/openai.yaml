@@ -1,0 +1,4 @@
+interface:
+  display_name: "Catholic Understanding"
+  short_description: "Catholic context for prayer content"
+  default_prompt: "Use $catholic-understanding to review prayer content for Catholic theological context."
