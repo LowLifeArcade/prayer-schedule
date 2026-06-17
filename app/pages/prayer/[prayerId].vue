@@ -233,7 +233,7 @@ async function onDone() {
     .hero-copy {
         display: grid;
         gap: 0.8rem;
-        min-width: 0;
+        /* min-width: 0; */
     }
 
     .eyebrow {
