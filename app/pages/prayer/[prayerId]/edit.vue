@@ -131,6 +131,18 @@
                                 </button>
                             </div>
                         </div>
+                        <input
+                            v-if="block.type === 'static'"
+                            v-model="block.title"
+                            type="text"
+                            placeholder="Optional section title"
+                        />
+                        <input
+                            v-else
+                            v-model="block.name"
+                            type="text"
+                            placeholder="Dynamic section name"
+                        />
                         <textarea
                             v-if="block.type === 'static'"
                             v-model="block.body"
@@ -175,17 +187,22 @@
                             type="text"
                             placeholder="Optional day title"
                         />
-                        <label
+                        <section
                             v-for="block in dynamicContentBlocks"
                             :key="block.id"
                             class="dynamic-day"
                         >
                             <span>{{ getDynamicBlockLabel(block) }}</span>
+                            <input
+                                v-model="getDynamicDay(block, day.dayNumber).title"
+                                type="text"
+                                placeholder="Optional section title"
+                            />
                             <textarea
                                 v-model="getDynamicDay(block, day.dayNumber).body"
                                 placeholder="Content for this day"
                             />
-                        </label>
+                        </section>
                         <input
                             v-model="day.imageUrl"
                             type="url"
@@ -240,11 +257,14 @@ const errorMessage = ref('');
 const createDynamicDays = (dayCount) =>
     Array.from({ length: dayCount }, (_, index) => ({
         dayNumber: index + 1,
+        title: '',
         body: '',
     }));
 const createContentBlock = (type = 'static', dayCount = 2) => ({
     id: `${Date.now()}-${Math.random()}`,
     type,
+    name: '',
+    title: '',
     body: '',
     days: type === 'dynamic' ? createDynamicDays(dayCount) : [],
 });
@@ -286,8 +306,17 @@ watch(
             prayer.contentBlocks = value.contentBlocks.map((block) => ({
                 id: block.id || `${Date.now()}-${Math.random()}`,
                 type: block.type === 'dynamic' ? 'dynamic' : 'static',
+                name: block.name || (block.type === 'dynamic' ? block.title || '' : ''),
+                title: block.type === 'dynamic' ? '' : block.title || '',
                 body: block.body || '',
-                days: block.type === 'dynamic' ? block.days || createDynamicDays(dayCount) : [],
+                days:
+                    block.type === 'dynamic'
+                        ? (block.days || createDynamicDays(dayCount)).map((day, index) => ({
+                              dayNumber: day.dayNumber || index + 1,
+                              title: day.title || '',
+                              body: day.body || '',
+                          }))
+                        : [],
             }));
         } else if (value.days?.length) {
             prayer.contentBlocks = [
@@ -295,6 +324,7 @@ watch(
                     ...createContentBlock('dynamic', dayCount),
                     days: value.days.map((day) => ({
                         dayNumber: day.dayNumber,
+                        title: '',
                         body: day.body || '',
                     })),
                 },
@@ -332,6 +362,7 @@ function syncDays() {
         while (block.days.length < dayCount) {
             block.days.push({
                 dayNumber: block.days.length + 1,
+                title: '',
                 body: '',
             });
         }
@@ -405,6 +436,7 @@ function getDynamicDay(block, dayNumber) {
     if (!day) {
         day = {
             dayNumber,
+            title: '',
             body: '',
         };
         block.days.push(day);
@@ -415,6 +447,11 @@ function getDynamicDay(block, dayNumber) {
 }
 
 function getDynamicBlockLabel(block) {
+    const name = block.name?.trim();
+    if (name) {
+        return name;
+    }
+
     const dynamicIndex = dynamicContentBlocks.value.findIndex((item) => item.id === block.id);
     return `dynamic section ${dynamicIndex + 1}`;
 }
@@ -433,8 +470,10 @@ function serializeContentBlocks() {
             return {
                 id: block.id,
                 type: 'dynamic',
+                name: block.name,
                 days: block.days.map((day) => ({
                     dayNumber: day.dayNumber,
+                    title: day.title,
                     body: day.body,
                 })),
             };
@@ -443,6 +482,7 @@ function serializeContentBlocks() {
         return {
             id: block.id,
             type: 'static',
+            title: block.title,
             body: block.body,
         };
     });

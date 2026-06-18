@@ -95,6 +95,7 @@ function normalizeContentBlocks(contentBlocks: unknown) {
                     ? value.days
                           .map((day: Record<string, any>, dayIndex: number) => ({
                               dayNumber: Number(day?.dayNumber || dayIndex + 1),
+                              title: day?.title?.trim() || '',
                               body: day?.body?.trim() || '',
                           }))
                           .sort((a, b) => a.dayNumber - b.dayNumber)
@@ -103,6 +104,7 @@ function normalizeContentBlocks(contentBlocks: unknown) {
                 return {
                     id: String(value.id || `block-${index + 1}`),
                     type: 'dynamic',
+                    name: value.name?.trim() || value.title?.trim() || '',
                     days: dynamicDays,
                 };
             }
@@ -110,6 +112,7 @@ function normalizeContentBlocks(contentBlocks: unknown) {
             return {
                 id: String(value.id || `block-${index + 1}`),
                 type: 'static',
+                title: value.title?.trim() || '',
                 body: value.body?.trim() || '',
             };
         })
@@ -118,18 +121,27 @@ function normalizeContentBlocks(contentBlocks: unknown) {
                 return false;
             }
 
-            return block.type === 'dynamic' ? block.days.some((day) => day.body) : Boolean(block.body);
+            return block.type === 'dynamic'
+                ? Boolean(block.name) || block.days.some((day) => day.title || day.body)
+                : Boolean(block.title || block.body);
         });
 }
 
 function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
     return blocks
         .map((block) => {
+            let title = block.title || '';
+            let body = '';
+
             if (block.type === 'dynamic') {
-                return block.days.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+                const day = block.days.find((item: Record<string, any>) => item.dayNumber === dayNumber);
+                title = day?.title || '';
+                body = day?.body || '';
+            } else {
+                body = block.body || '';
             }
 
-            return block.body || '';
+            return [title, body].filter(Boolean).join('\n');
         })
         .filter(Boolean)
         .join('\n\n');

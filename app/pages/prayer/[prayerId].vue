@@ -64,19 +64,31 @@
             </figure>
 
             <article class="prayer-card">
-                <h2 v-if="data?.selectedDayTitle">{{ data.selectedDayTitle }}</h2>
+                <h2
+                    v-if="data?.selectedDayTitle"
+                    class="day-title"
+                >
+                    {{ data.selectedDayTitle }}
+                </h2>
 
                 <div
                     v-if="data?.selectedBlocks?.length"
                     class="prayer-content"
                 >
-                    <p
+                    <section
                         v-for="block in data.selectedBlocks"
                         :key="block.id"
+                        class="prayer-section"
                         :class="{ dynamic: block.type === 'dynamic' }"
                     >
-                        {{ block.body }}
-                    </p>
+                        <h2
+                            v-if="block.title"
+                            class="section-title"
+                        >
+                            {{ block.title }}
+                        </h2>
+                        <p v-if="block.body">{{ block.body }}</p>
+                    </section>
                 </div>
                 <p
                     v-else
@@ -250,11 +262,18 @@ async function onDone() {
         font-weight: 800;
     }
 
-    h2 {
+    .day-title {
         max-width: 68rem;
-        font-size: 4rem;
+        font-size: 4.8rem;
         line-height: 1;
         margin-bottom: 2rem;
+    }
+
+    .section-title {
+        max-width: 68rem;
+        font-size: 3.6rem;
+        line-height: 1.08;
+        margin-bottom: 1.2rem;
     }
 
     .progress-note {
@@ -349,7 +368,7 @@ async function onDone() {
     }
 
     .prayer-body,
-    .prayer-content p,
+    .prayer-section p,
     .day-content p {
         max-width: 68rem;
         color: var(--color-text);
@@ -427,8 +446,12 @@ async function onDone() {
             font-size: 4.4rem;
         }
 
-        h2 {
-            font-size: 3rem;
+        .day-title {
+            font-size: 3.4rem;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
         }
 
         .prayer-card {

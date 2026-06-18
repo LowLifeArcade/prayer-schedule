@@ -110,11 +110,18 @@ function parseContentBlocks(body: unknown) {
 function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
     return blocks
         .map((block) => {
+            let title = block.title || '';
+            let body = '';
+
             if (block.type === 'dynamic') {
-                return block.days?.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+                const day = block.days?.find((item: Record<string, any>) => item.dayNumber === dayNumber);
+                title = day?.title || '';
+                body = day?.body || '';
+            } else {
+                body = block.body || '';
             }
 
-            return block.body || '';
+            return [title, body].filter(Boolean).join('\n');
         })
         .filter(Boolean)
         .join('\n\n');

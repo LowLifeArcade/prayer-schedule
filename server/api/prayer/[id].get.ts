@@ -110,19 +110,22 @@ function renderSelectedBlocks(blocks: Array<Record<string, any>>, dayNumber: num
     return blocks
         .map((block) => {
             if (block.type === 'dynamic') {
-                const body = block.days?.find((day: Record<string, any>) => day.dayNumber === dayNumber)?.body || '';
+                const day = block.days?.find((item: Record<string, any>) => item.dayNumber === dayNumber);
                 return {
                     id: block.id,
                     type: 'dynamic',
-                    body,
+                    name: block.name || block.title || '',
+                    title: day?.title || '',
+                    body: day?.body || '',
                 };
             }
 
             return {
                 id: block.id,
                 type: 'static',
+                title: block.title || '',
                 body: block.body || '',
             };
         })
-        .filter((block) => block.body);
+        .filter((block) => block.title || block.body);
 }
