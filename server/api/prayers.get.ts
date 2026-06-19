@@ -10,14 +10,14 @@ export default defineEventHandler(async (event) => {
     // use KV to cache
     const prayers = await db.sql`
         SELECT
-            p.id, p.title, p.preview, pb.body, pp.pos
+            p.id, p.title, p.user_id, p.visibility, p.preview, pb.body, pp.pos
         FROM prayers p
         JOIN prayer_bodies pb
             ON pb.prayer_id = p.id
         JOIN prayer_positions pp
             ON pp.prayer_id = p.id
-        WHERE p.user_id = ${session.user.uid}
-        AND deleted_at IS NULL
+            AND pp.user_id = ${session.user.uid}
+        WHERE p.deleted_at IS NULL
     `;
 
     if (!prayers.success) {
@@ -36,8 +36,10 @@ export default defineEventHandler(async (event) => {
         FROM prayer_days pd
         JOIN prayers p
             ON p.id = pd.prayer_id
-        WHERE p.user_id = ${session.user.uid}
-            AND p.deleted_at IS NULL
+        JOIN prayer_positions pp
+            ON pp.prayer_id = p.id
+            AND pp.user_id = ${session.user.uid}
+        WHERE p.deleted_at IS NULL
         ORDER BY pd.prayer_id, pd.day_number
     `;
     const progress = await db.sql`
@@ -63,7 +65,10 @@ export default defineEventHandler(async (event) => {
 
     return prayers.rows.map((prayer) => {
         const prayerDays = daysByPrayer.get(prayer.id) || [];
-        const completedDays = new Set((completedByPrayer.get(prayer.id) || []).map((item) => item.day_number));
+        const availableDayNumbers = new Set(prayerDays.map((day) => day.day_number));
+        const completedDays = new Set(
+            (completedByPrayer.get(prayer.id) || []).map((item) => item.day_number).filter((dayNumber) => availableDayNumbers.has(dayNumber)),
+        );
         const currentDay = prayerDays.find((day) => !completedDays.has(day.day_number)) || prayerDays.at(-1);
         const composedBlocks = parseContentBlocks(prayer.body);
         const composedPreview = composedBlocks.length
@@ -73,6 +78,7 @@ export default defineEventHandler(async (event) => {
 
         return {
             ...prayerSummary,
+            isOwner: prayer.user_id === session.user.uid,
             days: prayerDays.map((day) => ({
                 dayNumber: day.day_number,
                 isComplete: completedDays.has(day.day_number),
@@ -117,6 +123,8 @@ function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: numb
                 const day = block.days?.find((item: Record<string, any>) => item.dayNumber === dayNumber);
                 title = day?.title || '';
                 body = day?.body || '';
+            } else if (block.type === 'image') {
+                title = block.title || block.alt || 'Image';
             } else {
                 body = block.body || '';
             }

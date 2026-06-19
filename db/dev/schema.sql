@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS prayers (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     user_id TEXT NOT NULL REFERENCES users(uid),
+    visibility TEXT NOT NULL DEFAULT 'private' CHECK(visibility IN ('private', 'public')),
     preview TEXT NOT NULL,
     created_at INTEGER DEFAULT (unixepoch()),
     updated_at INTEGER DEFAULT (unixepoch()),

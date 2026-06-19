@@ -36,6 +36,7 @@
         "@chenglou/pretext": "^0.0.4",
         "nuxt": "^4.3.1",
         "nuxt-auth-utils": "^0.5.29",
+        "tesseract.js": "^7.0.0",
         "vue": "^3.5.30",
         "vue-draggable-plus": "^0.6.1",
         "vue-router": "^4.6.4"

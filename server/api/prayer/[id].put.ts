@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
     const { id } = getRouterParams(event);
-    const { title, body, days = [], contentBlocks = [] } = await readBody(event);
+    const { title, body, days = [], contentBlocks = [], visibility = 'private' } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
     const { user } = await getUserSession(event);
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const normalizedTitle = title?.trim();
+    const normalizedVisibility = visibility === 'public' ? 'public' : 'private';
     if (!normalizedTitle) {
         throw createError({ statusCode: 422, message: 'Title is required' });
     }
@@ -60,10 +61,10 @@ export default defineEventHandler(async (event) => {
             d1
                 .prepare(
                     `UPDATE prayers
-                     SET title = ?, preview = ?, updated_at = unixepoch()
+                     SET title = ?, preview = ?, updated_at = unixepoch(), visibility = ?
                      WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
                 )
-                .bind(normalizedTitle, preview, id, user.uid),
+                .bind(normalizedTitle, preview, normalizedVisibility, id, user.uid),
             d1.prepare('UPDATE prayer_bodies SET body = ? WHERE prayer_id = ?').bind(prayerBody, id),
             d1.prepare('DELETE FROM prayer_days WHERE prayer_id = ?').bind(id),
             d1.prepare('DELETE FROM prayer_progress WHERE user_id = ? AND prayer_id = ?').bind(user.uid, id),
@@ -88,7 +89,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not update prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id, title: normalizedTitle, body: prayerBody, days: normalizedDays };
+    return { message: 'success', id, title: normalizedTitle, body: prayerBody, visibility: normalizedVisibility, days: normalizedDays };
 });
 
 function normalizeContentBlocks(contentBlocks: unknown) {
@@ -123,6 +124,16 @@ function normalizeContentBlocks(contentBlocks: unknown) {
                 };
             }
 
+            if (value.type === 'image') {
+                return {
+                    id: String(value.id || `block-${index + 1}`),
+                    type: 'image',
+                    title: value.title?.trim() || '',
+                    imageUrl: value.imageUrl?.trim() || '',
+                    alt: value.alt?.trim() || '',
+                };
+            }
+
             return {
                 id: String(value.id || `block-${index + 1}`),
                 type: 'static',
@@ -137,6 +148,8 @@ function normalizeContentBlocks(contentBlocks: unknown) {
 
             return block.type === 'dynamic'
                 ? Boolean(block.name) || block.days.some((day) => day.title || day.body)
+                : block.type === 'image'
+                  ? Boolean(block.imageUrl)
                 : Boolean(block.title || block.body);
         });
 }
@@ -151,6 +164,8 @@ function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: numb
                 const day = block.days.find((item: Record<string, any>) => item.dayNumber === dayNumber);
                 title = day?.title || '';
                 body = day?.body || '';
+            } else if (block.type === 'image') {
+                title = block.title || block.alt || 'Image';
             } else {
                 body = block.body || '';
             }

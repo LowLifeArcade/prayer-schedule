@@ -28,6 +28,10 @@ const { theme, setTheme } = useTheme();
 <style scoped>
 .theme-toggle {
     display: flex;
+    width: max-content;
+    max-width: 100%;
+    justify-self: end;
+    align-self: start;
     gap: 0.25rem;
     padding: 0.25rem;
     background: var(--color-surface);

@@ -17,11 +17,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayer = await db.sql`
-        SELECT id
-        FROM prayers
-        WHERE user_id = ${user.uid}
-            AND id = ${id}
-            AND deleted_at IS NULL
+        SELECT p.id
+        FROM prayers p
+        JOIN prayer_positions pp
+            ON pp.prayer_id = p.id
+            AND pp.user_id = ${user.uid}
+        WHERE p.id = ${id}
+            AND p.deleted_at IS NULL
     `;
 
     if (!prayer.success || !prayer.rows?.[0]) {

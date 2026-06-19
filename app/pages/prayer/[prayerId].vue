@@ -7,11 +7,17 @@
         <div class="top container">
             <button
                 class="back-btn"
-                @click="router.back()"
+                @click="onBack"
             >
                 <span aria-hidden="true">&lt;</span>
-                <span>Prayers</span>
+                <span>{{ backLabel }}</span>
             </button>
+            <NuxtLink
+                class="list-btn"
+                to="/"
+            >
+                Prayer List
+            </NuxtLink>
         </div>
 
         <main class="prayer-shell container">
@@ -87,6 +93,12 @@
                         >
                             {{ block.title }}
                         </h2>
+                        <img
+                            v-if="block.type === 'image' && block.imageUrl"
+                            class="content-image"
+                            :src="block.imageUrl"
+                            :alt="block.alt || block.title || data.title"
+                        />
                         <p v-if="block.body">{{ block.body }}</p>
                     </section>
                 </div>
@@ -107,12 +119,14 @@
 
             <div class="actions">
                 <button
+                    v-if="data?.isOwner"
                     class="edit-btn"
                     @click="router.push(`/prayer/${prayerId}/edit`)"
                 >
                     Edit
                 </button>
                 <button
+                    v-if="data?.isAdded"
                     class="done-btn"
                     :class="{ complete: isSelectedDayComplete }"
                     @click="onDone"
@@ -137,6 +151,7 @@ const { data, pending, refresh } = useFetch(`/api/prayer/${prayerId}`, {
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 const router = useRouter();
 const isEditing = computed(() => route.name === 'prayer-prayerId-edit');
+const previousPath = ref('');
 
 const isSelectedDayComplete = computed(() => data.value?.completedDays?.includes(selectedDayNumber.value));
 const dayLabel = computed(() => {
@@ -152,6 +167,42 @@ const progressLabel = computed(() => {
 
     return `${completed} of ${total} days prayed`;
 });
+const backLabel = computed(() => {
+    if (!previousPath.value) {
+        return 'Prayer List';
+    }
+
+    if (previousPath.value.includes(`/prayer/${prayerId}/edit`)) {
+        return 'Editing';
+    }
+
+    if (previousPath.value === '/' || previousPath.value.startsWith('/?')) {
+        return 'Prayer List';
+    }
+
+    if (previousPath.value.startsWith('/prayers/public')) {
+        return 'Public prayers';
+    }
+
+    if (previousPath.value.startsWith('/prayer/')) {
+        return 'Prayer';
+    }
+
+    return 'Back';
+});
+
+onMounted(() => {
+    previousPath.value = String(window.history.state?.back || '');
+});
+
+function onBack() {
+    if (!previousPath.value) {
+        router.push('/');
+        return;
+    }
+
+    router.back();
+}
 
 async function onDayChange(dayNumber) {
     await router.replace({
@@ -194,6 +245,10 @@ async function onDone() {
         var(--color-bg);
 
     .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
         padding-block: 2rem 1rem;
     }
 
@@ -203,7 +258,8 @@ async function onDone() {
         max-width: 920px;
     }
 
-    .back-btn {
+    .back-btn,
+    .list-btn {
         display: inline-flex;
         align-items: center;
         gap: 0.8rem;
@@ -216,6 +272,7 @@ async function onDone() {
         cursor: pointer;
         font-size: 1.5rem;
         font-weight: 700;
+        text-decoration: none;
         transition:
             border-color 160ms ease,
             color 160ms ease,
@@ -226,6 +283,10 @@ async function onDone() {
             color: var(--color-text);
             transform: translateY(-1px);
         }
+    }
+
+    .list-btn {
+        color: var(--color-text);
     }
 
     .prayer-hero {
@@ -365,6 +426,15 @@ async function onDone() {
     .prayer-content {
         display: grid;
         gap: 2.2rem;
+    }
+
+    .content-image {
+        display: block;
+        width: 100%;
+        max-height: 52rem;
+        border-radius: 0.8rem;
+        object-fit: contain;
+        background: var(--color-surface-2);
     }
 
     .prayer-body,

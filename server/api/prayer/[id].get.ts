@@ -9,13 +9,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayer = await db.sql`
-        SELECT p.*, pb.body
+        SELECT p.*, pb.body, pp.user_id AS added_user_id
         FROM prayers as p
         JOIN prayer_bodies as pb
             ON p.id = pb.prayer_id
-        WHERE p.user_id = ${user.uid}
-            AND p.id = ${id}
+        LEFT JOIN prayer_positions pp
+            ON pp.prayer_id = p.id
+            AND pp.user_id = ${user.uid}
+        WHERE p.id = ${id}
             AND p.deleted_at IS NULL
+            AND (pp.user_id IS NOT NULL OR p.visibility = 'public')
     `;
 
     if (!prayer.success) {
@@ -47,7 +50,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 422, statusMessage: 'there was a problem getting your prayer progress' });
     }
 
-    const completedDays = new Set(progress.rows.map((item) => item.day_number));
+    const dayNumbers = new Set(days.rows.map((item) => item.day_number));
+    const completedDays = new Set(progress.rows.map((item) => item.day_number).filter((dayNumber) => dayNumbers.has(dayNumber)));
     const requestedDay = Number(day);
     const selectedDay =
         days.rows.find((item) => item.day_number === requestedDay) ||
@@ -66,7 +70,14 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...prayerRow,
-        body: composedBlocks.length ? selectedBlocks.map((block) => block.body).join('\n\n') : usesLegacyStaticDayBody ? selectedDayBody : prayerRow.body,
+        body: composedBlocks.length
+            ? selectedBlocks
+                  .map((block) => block.body)
+                  .filter(Boolean)
+                  .join('\n\n')
+            : usesLegacyStaticDayBody
+              ? selectedDayBody
+              : prayerRow.body,
         editBody: composedBlocks.length ? '' : prayerRow.body,
         contentBlocks: composedBlocks,
         selectedDayNumber: selectedDay?.day_number || 1,
@@ -75,8 +86,10 @@ export default defineEventHandler(async (event) => {
         selectedBlocks,
         selectedDayImageUrl: selectedDay?.image_url || null,
         selectedDayContentMode,
+        isOwner: prayerRow.user_id === user.uid,
+        isAdded: Boolean(prayerRow.added_user_id),
         totalDays: days.rows.length || 1,
-        completedDays: progress.rows.map((item) => item.day_number),
+        completedDays: [...completedDays],
         days: days.rows.map((item) => ({
             dayNumber: item.day_number,
             title: item.title,
@@ -120,6 +133,17 @@ function renderSelectedBlocks(blocks: Array<Record<string, any>>, dayNumber: num
                 };
             }
 
+            if (block.type === 'image') {
+                return {
+                    id: block.id,
+                    type: 'image',
+                    title: block.title || '',
+                    imageUrl: block.imageUrl || '',
+                    alt: block.alt || '',
+                    body: '',
+                };
+            }
+
             return {
                 id: block.id,
                 type: 'static',
@@ -127,5 +151,5 @@ function renderSelectedBlocks(blocks: Array<Record<string, any>>, dayNumber: num
                 body: block.body || '',
             };
         })
-        .filter((block) => block.title || block.body);
+        .filter((block) => block.title || block.body || block.imageUrl);
 }

@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    const { title, body, days = [], contentBlocks = [], listName = 'default' } = await readBody(event);
+    const { title, body, days = [], contentBlocks = [], listName = 'default', visibility = 'private' } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
 
@@ -10,6 +10,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const prayerId = uuidv7();
+    const normalizedTitle = title?.trim();
+    const normalizedVisibility = visibility === 'public' ? 'public' : 'private';
+
+    if (!normalizedTitle) {
+        throw createError({ statusCode: 422, message: 'Title is required' });
+    }
+
     const normalizedContentBlocks = normalizeContentBlocks(contentBlocks);
     const normalizedDays = Array.isArray(days)
         ? days
@@ -37,8 +44,8 @@ export default defineEventHandler(async (event) => {
     try {
         const statements = [
             d1
-                .prepare('INSERT INTO prayers (id, title, user_id, preview) VALUES (?, ?, ?, ?)')
-                .bind(prayerId, title, user.uid, preview),
+                .prepare('INSERT INTO prayers (id, title, user_id, visibility, preview) VALUES (?, ?, ?, ?, ?)')
+                .bind(prayerId, normalizedTitle, user.uid, normalizedVisibility, preview),
             d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, prayerBody),
             d1
                 .prepare(`
@@ -74,7 +81,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not add prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id: prayerId, title, body: prayerBody, days: normalizedDays };
+    return { message: 'success', id: prayerId, title: normalizedTitle, body: prayerBody, visibility: normalizedVisibility, days: normalizedDays };
 });
 
 function normalizeContentBlocks(contentBlocks: unknown) {
@@ -109,6 +116,16 @@ function normalizeContentBlocks(contentBlocks: unknown) {
                 };
             }
 
+            if (value.type === 'image') {
+                return {
+                    id: String(value.id || `block-${index + 1}`),
+                    type: 'image',
+                    title: value.title?.trim() || '',
+                    imageUrl: value.imageUrl?.trim() || '',
+                    alt: value.alt?.trim() || '',
+                };
+            }
+
             return {
                 id: String(value.id || `block-${index + 1}`),
                 type: 'static',
@@ -123,6 +140,8 @@ function normalizeContentBlocks(contentBlocks: unknown) {
 
             return block.type === 'dynamic'
                 ? Boolean(block.name) || block.days.some((day) => day.title || day.body)
+                : block.type === 'image'
+                  ? Boolean(block.imageUrl)
                 : Boolean(block.title || block.body);
         });
 }
@@ -137,6 +156,8 @@ function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: numb
                 const day = block.days.find((item: Record<string, any>) => item.dayNumber === dayNumber);
                 title = day?.title || '';
                 body = day?.body || '';
+            } else if (block.type === 'image') {
+                title = block.title || block.alt || 'Image';
             } else {
                 body = block.body || '';
             }

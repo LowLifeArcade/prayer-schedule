@@ -91,6 +91,13 @@ INSERT INTO prayer_bodies (prayer_id, body)
 SELECT id,
     body
 FROM _tmp_prayers;
+INSERT INTO prayer_positions (user_id, prayer_id, list_name, pos)
+SELECT
+    '2e866f11-2e86-7b3f-81a6-ed3b8395953c',
+    id,
+    'default',
+    ROW_NUMBER() OVER (ORDER BY title) * 1000
+FROM _tmp_prayers;
 -- 4. Drop fake temp table
 DROP TABLE _tmp_prayers;
 -- ==========================
