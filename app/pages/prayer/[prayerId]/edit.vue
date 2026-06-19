@@ -1,17 +1,9 @@
 <template>
     <div
         v-if="loggedIn"
-        class="v-prayer-edit container"
+        class="v-prayer-edit"
     >
-        <div class="top-bar">
-            <h1>Edit Prayer</h1>
-            <NuxtLink
-                class="list-btn"
-                to="/"
-            >
-                Prayer List
-            </NuxtLink>
-        </div>
+        <PrayerTopBar @back="onBack" />
 
         <form
             class="prayer-form"
@@ -455,12 +447,21 @@
                 <button
                     type="button"
                     class="btn cancel"
-                    @click="router.back()"
+                    @click="showCancelConfirm = true"
                 >
                     Cancel
                 </button>
             </div>
         </form>
+        <ConfirmModal
+            :open="showCancelConfirm"
+            title="Discard changes?"
+            message="Your edits to this prayer have not been saved."
+            confirm-label="Discard"
+            cancel-label="Keep editing"
+            @confirm="confirmCancelEdit"
+            @cancel="showCancelConfirm = false"
+        />
     </div>
 </template>
 
@@ -477,6 +478,7 @@ const { data } = await useFetch(`/api/prayer/${prayerId}`);
 const { ocrStatus, clearOcrStatus, imageFileToDataUrl, imageFileToText } = usePrayerImageTools();
 const saving = ref(false);
 const errorMessage = ref('');
+const showCancelConfirm = ref(false);
 
 const createDynamicDays = (dayCount) =>
     Array.from({ length: dayCount }, (_, index) => ({
@@ -925,6 +927,15 @@ async function onSave() {
         saving.value = false;
     }
 }
+
+function confirmCancelEdit() {
+    showCancelConfirm.value = false;
+    router.back();
+}
+
+function onBack() {
+    router.back();
+}
 </script>
 
 <style scoped>
@@ -932,32 +943,13 @@ async function onSave() {
     min-height: 100vh;
     padding-bottom: 6rem;
 
-    .top-bar {
-        align-items: center;
-        padding-block: 2rem;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .list-btn {
-        display: inline-flex;
-        align-items: center;
-        min-height: 4rem;
-        padding: 0.8rem 1rem;
-        border: 1px solid var(--color-border);
-        border-radius: 0.8rem;
-        background: color-mix(in srgb, var(--color-surface) 72%, transparent);
-        color: var(--color-text);
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
     .prayer-form {
         display: flex;
         flex-direction: column;
         gap: 3rem;
         max-width: 800px;
+        padding-top: 2.8rem;
+        padding-inline: 1rem;
         margin-inline: auto;
     }
 
@@ -1251,10 +1243,6 @@ async function onSave() {
     }
 
     @media (width < 560px) {
-        .top-bar {
-            align-items: flex-start;
-        }
-
         .edit-mode h2 {
             font-size: 2rem;
         }

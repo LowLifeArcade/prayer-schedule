@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
 
     return prayers.rows.map((prayer) => {
         const prayerDays = daysByPrayer.get(prayer.id) || [];
-        const availableDayNumbers = new Set(prayerDays.map((day) => day.day_number));
+        const availableDayNumbers = new Set(prayerDays.length ? prayerDays.map((day) => day.day_number) : [1]);
         const completedDays = new Set(
             (completedByPrayer.get(prayer.id) || []).map((item) => item.day_number).filter((dayNumber) => availableDayNumbers.has(dayNumber)),
         );
@@ -86,10 +86,13 @@ export default defineEventHandler(async (event) => {
             })),
             totalDays: prayerDays.length || 1,
             completedDays: completedDays.size,
+            isPrayed: completedDays.size >= (prayerDays.length || 1),
             currentDayNumber: currentDay?.day_number || 1,
-            currentDayPreview:
-                composedPreview ||
-                (currentDay?.content_mode === 'static' ? currentDay.body?.substring(0, 200) || prayer.preview : prayer.preview),
+            currentDayPreview: composedBlocks.length
+                ? composedPreview
+                : currentDay?.content_mode === 'static'
+                  ? currentDay.body?.substring(0, 200) || prayer.preview
+                  : prayer.preview,
             currentDayImageUrl: currentDay?.thumbnail_image_url || currentDay?.image_url || contentImageUrl,
             hasDynamicContent: prayerDays.some((day) => day.content_mode === 'dynamic'),
         };
@@ -145,7 +148,7 @@ function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: numb
                 title = day?.title || '';
                 body = day?.body || '';
             } else if (block.type === 'image') {
-                title = block.title || block.alt || 'Image';
+                title = block.title || block.alt || '';
             } else {
                 body = block.body || '';
             }

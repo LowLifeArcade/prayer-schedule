@@ -4,21 +4,7 @@
         v-else-if="loggedIn"
         class="v-prayer"
     >
-        <div class="top container">
-            <button
-                class="back-btn"
-                @click="onBack"
-            >
-                <span aria-hidden="true">&lt;</span>
-                <span>{{ backLabel }}</span>
-            </button>
-            <NuxtLink
-                class="list-btn"
-                to="/"
-            >
-                Prayer List
-            </NuxtLink>
-        </div>
+        <PrayerTopBar @back="onBack" />
 
         <main class="prayer-shell container">
             <section class="prayer-hero">
@@ -152,7 +138,7 @@ const { data, pending, refresh } = useFetch(`/api/prayer/${prayerId}`, {
     query: computed(() => ({ day: route.query.day })),
 });
 
-const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
+const { loggedIn } = useUserSession();
 const router = useRouter();
 const isEditing = computed(() => route.name === 'prayer-prayerId-edit');
 const previousPath = ref('');
@@ -171,30 +157,6 @@ const progressLabel = computed(() => {
 
     return `${completed} of ${total} days prayed`;
 });
-const backLabel = computed(() => {
-    if (!previousPath.value) {
-        return 'Prayer List';
-    }
-
-    if (previousPath.value.includes(`/prayer/${prayerId}/edit`)) {
-        return 'Editing';
-    }
-
-    if (previousPath.value === '/' || previousPath.value.startsWith('/?')) {
-        return 'Prayer List';
-    }
-
-    if (previousPath.value.startsWith('/prayers/public')) {
-        return 'Public prayers';
-    }
-
-    if (previousPath.value.startsWith('/prayer/')) {
-        return 'Prayer';
-    }
-
-    return 'Back';
-});
-
 onMounted(() => {
     previousPath.value = String(window.history.state?.back || '');
 });
@@ -238,6 +200,7 @@ async function onDone() {
 
     await refresh();
 }
+
 </script>
 
 <style>
@@ -248,49 +211,11 @@ async function onDone() {
         linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 78%, transparent), transparent 34rem),
         var(--color-bg);
 
-    .top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding-block: 2rem 1rem;
-    }
-
     .prayer-shell {
         display: grid;
         gap: 2.4rem;
         max-width: 920px;
-    }
-
-    .back-btn,
-    .list-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        min-height: 4rem;
-        padding: 0.8rem 1rem;
-        border: 1px solid var(--color-border);
-        border-radius: 0.8rem;
-        background: color-mix(in srgb, var(--color-surface) 72%, transparent);
-        color: var(--color-text-muted);
-        cursor: pointer;
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition:
-            border-color 160ms ease,
-            color 160ms ease,
-            transform 160ms ease;
-
-        &:hover {
-            border-color: var(--color-border-2);
-            color: var(--color-text);
-            transform: translateY(-1px);
-        }
-    }
-
-    .list-btn {
-        color: var(--color-text);
+        padding-top: 2.8rem;
     }
 
     .prayer-hero {

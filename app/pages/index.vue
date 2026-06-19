@@ -184,6 +184,14 @@
                     :key="item.id"
                 >
                     <div class="prayer">
+                        <span
+                            v-if="item.isPrayed"
+                            class="prayed-badge"
+                            aria-label="Prayed"
+                            title="Prayed"
+                        >
+                            ✓
+                        </span>
                         <img
                             v-if="item.currentDayImageUrl"
                             class="prayer-image"
@@ -693,12 +701,21 @@
                 <button
                     type="button"
                     class="btn cancel"
-                    @click="showAddPrayerForm = false"
+                    @click="showCancelConfirm = true"
                 >
                     Cancel
                 </button>
             </div>
         </form>
+        <ConfirmModal
+            :open="showCancelConfirm"
+            title="Discard this prayer?"
+            message="The prayer you are creating has not been saved."
+            confirm-label="Discard"
+            cancel-label="Keep editing"
+            @confirm="confirmCancelCreate"
+            @cancel="showCancelConfirm = false"
+        />
     </div>
 </template>
 
@@ -801,6 +818,7 @@ async function onMoved(e) {
 }
 
 const showAddPrayerForm = ref(false);
+const showCancelConfirm = ref(false);
 const createDynamicDays = (dayCount) =>
     Array.from({ length: dayCount }, (_, index) => ({
         dayNumber: index + 1,
@@ -900,6 +918,13 @@ async function onAddPrayer() {
     } catch (error) {
         console.error({ error });
     }
+}
+
+function confirmCancelCreate() {
+    showCancelConfirm.value = false;
+    showAddPrayerForm.value = false;
+    Object.assign(prayer, initialState());
+    clearOcrStatus();
 }
 
 async function onDelete(id) {
@@ -1821,12 +1846,32 @@ function onMultiDayToggle() {
         }
 
         .prayer {
+            position: relative;
             border: 1px solid var(--color-border-2);
             background-color: var(--color-surface);
             cursor: pointer;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+
+            .prayed-badge {
+                position: absolute;
+                top: -1.3rem;
+                right: -1.3rem;
+                z-index: 1;
+                display: grid;
+                place-items: center;
+                width: 3.2rem;
+                height: 3.2rem;
+                border: 2px solid var(--color-surface);
+                border-radius: 999px;
+                background: #2f7464;
+                color: #fff;
+                font-size: 1.8rem;
+                font-weight: 900;
+                line-height: 1;
+                box-shadow: 0 0.8rem 1.8rem rgba(0, 0, 0, 0.2);
+            }
 
             .prayer-image {
                 width: 100%;

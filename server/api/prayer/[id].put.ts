@@ -166,7 +166,7 @@ function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: numb
                 title = day?.title || '';
                 body = day?.body || '';
             } else if (block.type === 'image') {
-                title = block.title || block.alt || 'Image';
+                title = block.title || block.alt || '';
             } else {
                 body = block.body || '';
             }

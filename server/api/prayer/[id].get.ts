@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 422, statusMessage: 'there was a problem getting your prayer progress' });
     }
 
-    const dayNumbers = new Set(days.rows.map((item) => item.day_number));
+    const dayNumbers = new Set(days.rows.length ? days.rows.map((item) => item.day_number) : [1]);
     const completedDays = new Set(progress.rows.map((item) => item.day_number).filter((dayNumber) => dayNumbers.has(dayNumber)));
     const requestedDay = Number(day);
     const selectedDay =
@@ -90,6 +90,7 @@ export default defineEventHandler(async (event) => {
         isAdded: Boolean(prayerRow.added_user_id),
         totalDays: days.rows.length || 1,
         completedDays: [...completedDays],
+        isPrayed: completedDays.size >= (days.rows.length || 1),
         days: days.rows.map((item) => ({
             dayNumber: item.day_number,
             title: item.title,

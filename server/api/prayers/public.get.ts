@@ -69,7 +69,7 @@ function getReadablePreview(body: unknown, fallback: string) {
                 }
 
                 if (block.type === 'image') {
-                    return block.title || block.alt || 'Image';
+                    return block.title || block.alt || '';
                 }
 
                 return [block.title, block.body].filter(Boolean).join('\n');
