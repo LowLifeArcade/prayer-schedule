@@ -403,6 +403,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: 'auth',
+});
+
 const route = useRoute();
 const router = useRouter();
 const prayerId = route.params.prayerId;

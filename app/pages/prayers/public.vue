@@ -71,6 +71,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: 'auth',
+});
+
 const router = useRouter();
 const { loggedIn } = useUserSession();
 const { data, refresh } = await useFetch('/api/prayers/public');

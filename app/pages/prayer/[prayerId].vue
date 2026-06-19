@@ -139,6 +139,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: 'auth',
+});
+
 // use lib to adjust textwrap flow on the fly for when user pinch zooms
 // https://www.npmjs.com/package/@chenglou/pretext
 const route = useRoute();
