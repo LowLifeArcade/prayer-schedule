@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS prayer_days (
     title TEXT,
     body TEXT NOT NULL,
     image_url TEXT,
+    thumbnail_image_url TEXT,
     content_mode TEXT NOT NULL DEFAULT 'static' CHECK(content_mode IN ('static', 'dynamic')),
     PRIMARY KEY (prayer_id, day_number)
 );

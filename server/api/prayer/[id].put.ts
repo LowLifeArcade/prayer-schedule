@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
                   title: day.title?.trim() || null,
                   body: day.body?.trim() || '',
                   imageUrl: day.imageUrl?.trim() || null,
+                  thumbnailImageUrl: day.thumbnailImageUrl?.trim() || null,
                   contentMode: day.contentMode === 'dynamic' ? 'dynamic' : 'static',
               }))
               .sort((a, b) => a.dayNumber - b.dayNumber)
@@ -71,10 +72,10 @@ export default defineEventHandler(async (event) => {
             ...normalizedDays.map((day) =>
                 d1
                     .prepare(
-                        `INSERT INTO prayer_days (prayer_id, day_number, title, body, image_url, content_mode)
-                         VALUES (?, ?, ?, ?, ?, ?)`,
+                        `INSERT INTO prayer_days (prayer_id, day_number, title, body, image_url, thumbnail_image_url, content_mode)
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     )
-                    .bind(id, day.dayNumber, day.title, day.body, day.imageUrl, day.contentMode),
+                    .bind(id, day.dayNumber, day.title, day.body, day.imageUrl, day.thumbnailImageUrl, day.contentMode),
             ),
         ];
 

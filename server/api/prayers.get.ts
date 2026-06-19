@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const days = await db.sql`
-        SELECT pd.prayer_id, pd.day_number, pd.body, pd.image_url, pd.content_mode
+        SELECT pd.prayer_id, pd.day_number, pd.body, pd.image_url, pd.thumbnail_image_url, pd.content_mode
         FROM prayer_days pd
         JOIN prayers p
             ON p.id = pd.prayer_id
@@ -71,6 +71,7 @@ export default defineEventHandler(async (event) => {
         );
         const currentDay = prayerDays.find((day) => !completedDays.has(day.day_number)) || prayerDays.at(-1);
         const composedBlocks = parseContentBlocks(prayer.body);
+        const contentImageUrl = getFirstContentImageUrl(composedBlocks, currentDay?.body || prayer.body);
         const composedPreview = composedBlocks.length
             ? renderContentBlocks(composedBlocks, currentDay?.day_number || 1).substring(0, 200)
             : null;
@@ -89,7 +90,7 @@ export default defineEventHandler(async (event) => {
             currentDayPreview:
                 composedPreview ||
                 (currentDay?.content_mode === 'static' ? currentDay.body?.substring(0, 200) || prayer.preview : prayer.preview),
-            currentDayImageUrl: currentDay?.image_url || null,
+            currentDayImageUrl: currentDay?.thumbnail_image_url || currentDay?.image_url || contentImageUrl,
             hasDynamicContent: prayerDays.some((day) => day.content_mode === 'dynamic'),
         };
     });
@@ -111,6 +112,26 @@ function parseContentBlocks(body: unknown) {
     } catch {
         return [];
     }
+}
+
+function getFirstContentImageUrl(blocks: Array<Record<string, any>>, body: unknown) {
+    const imageBlock = blocks.find((block) => block?.type === 'image' && block.imageUrl?.trim());
+
+    if (imageBlock) {
+        return imageBlock.imageUrl.trim();
+    }
+
+    if (typeof body !== 'string') {
+        return null;
+    }
+
+    const markdownImage = body.match(/!\[[^\]]*]\(([^)\s]+)[^)]*\)/);
+    if (markdownImage?.[1]) {
+        return markdownImage[1];
+    }
+
+    const htmlImage = body.match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
+    return htmlImage?.[1] || null;
 }
 
 function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {

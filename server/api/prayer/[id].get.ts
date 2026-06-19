@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const days = await db.sql`
-        SELECT day_number, title, body, image_url, content_mode
+        SELECT day_number, title, body, image_url, thumbnail_image_url, content_mode
         FROM prayer_days
         WHERE prayer_id = ${id}
         ORDER BY day_number
@@ -95,6 +95,7 @@ export default defineEventHandler(async (event) => {
             title: item.title,
             body: item.body,
             imageUrl: item.image_url,
+            thumbnailImageUrl: item.thumbnail_image_url,
             contentMode: item.content_mode,
             isComplete: completedDays.has(item.day_number),
         })),

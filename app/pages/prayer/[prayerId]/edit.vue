@@ -49,93 +49,138 @@
                     v-model="prayer.isMultiDay"
                     type="checkbox"
                     role="switch"
-                    @change="syncDays"
+                    @change="onMultiDayToggle"
                 />
                 <span class="toggle-track"></span>
             </label>
-            <label
-                v-if="!prayer.isMultiDay"
-                for="body"
-                class="title"
-            >
-                <h4>Prayer</h4>
-                <textarea
-                    v-model="prayer.body"
-                    name="body"
-                />
-            </label>
             <div
                 v-if="!prayer.isMultiDay"
-                class="image-import-actions"
+                class="content-builder"
             >
-                <label
-                    class="image-drop"
-                    @dragover.prevent
-                    @drop.prevent="onImageDrop($event, addDisplayImageFromFile)"
+                <div class="content-builder-header">
+                    <h4>Prayer Content</h4>
+                </div>
+                <section
+                    v-for="(block, index) in prayer.contentBlocks"
+                    :key="block.id"
+                    class="content-block"
                 >
-                    <span>Add image to display</span>
+                    <div class="content-block-header">
+                        <select
+                            v-model="block.type"
+                            class="block-type-select"
+                            @change="syncBlockType(block)"
+                        >
+                            <option value="static">section</option>
+                            <option value="image">image</option>
+                        </select>
+                        <div class="content-block-tools">
+                            <button
+                                type="button"
+                                aria-label="Move block up"
+                                :disabled="index === 0"
+                                @click="moveContentBlock(index, -1)"
+                            >
+                                ^
+                            </button>
+                            <button
+                                type="button"
+                                aria-label="Move block down"
+                                :disabled="index === prayer.contentBlocks.length - 1"
+                                @click="moveContentBlock(index, 1)"
+                            >
+                                v
+                            </button>
+                            <button
+                                type="button"
+                                class="remove-block-btn"
+                                aria-label="Remove content block"
+                                :disabled="prayer.contentBlocks.length <= 1"
+                                @click="removeContentBlock(block.id)"
+                            >
+                                <SvgTrash />
+                            </button>
+                        </div>
+                    </div>
                     <input
-                        type="file"
-                        accept="image/*"
-                        @change="(event) => addDisplayImageFromFile(event.target.files?.[0]).then(() => (event.target.value = ''))"
+                        v-if="block.type === 'static'"
+                        v-model="block.title"
+                        type="text"
+                        placeholder="Optional section title"
                     />
-                </label>
-                <label
-                    class="image-drop"
-                    @dragover.prevent
-                    @drop.prevent="onImageDrop($event, addTextFromImage)"
+                    <input
+                        v-else
+                        v-model="block.title"
+                        type="text"
+                        placeholder="Optional image title"
+                    />
+                    <textarea
+                        v-if="block.type === 'static'"
+                        v-model="block.body"
+                        placeholder="Prayer text"
+                    />
+                    <div
+                        v-else
+                        class="image-block-editor"
+                        @dragover.prevent
+                        @drop.prevent="onImageDrop($event, (file) => setDisplayImage(block, file))"
+                    >
+                        <img
+                            v-if="block.imageUrl"
+                            class="image-block-preview"
+                            :src="block.imageUrl"
+                            :alt="block.alt || block.title || `Prayer image ${index + 1}`"
+                        />
+                        <input
+                            v-model="block.imageUrl"
+                            type="url"
+                            placeholder="Image URL"
+                        />
+                        <input
+                            v-model="block.alt"
+                            type="text"
+                            placeholder="Image description"
+                        />
+                        <label class="image-drop compact">
+                            <span>Drop or choose display image</span>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                @change="onDisplayImageFile(block, $event)"
+                            />
+                        </label>
+                    </div>
+                </section>
+                <button
+                    type="button"
+                    class="add-content-block-btn"
+                    aria-label="Add content block"
+                    @click="addContentBlock('static')"
                 >
-                    <span>Read image as text</span>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        @change="onTextImageFile"
-                    />
-                </label>
+                    <SvgPlus size="30" />
+                </button>
+                <div class="content-add-actions">
+                    <button
+                        type="button"
+                        @click="addImageContentBlock"
+                    >
+                        Add image
+                    </button>
+                    <label>
+                        Read image as text
+                        <input
+                            type="file"
+                            accept="image/*"
+                            @change="onTextImageFile"
+                        />
+                    </label>
+                </div>
                 <p
                     v-if="ocrStatus"
                     class="import-status"
                 >
                     {{ ocrStatus }}
                 </p>
-            </div>
-            <div
-                v-if="!prayer.isMultiDay && imageContentBlocks.length"
-                class="content-builder"
-            >
-                <section
-                    v-for="(block, index) in imageContentBlocks"
-                    :key="block.id"
-                    class="content-block image"
-                >
-                    <div class="content-block-header">
-                        <strong>Display image</strong>
-                        <button
-                            type="button"
-                            class="remove-block-btn"
-                            aria-label="Remove content block"
-                            @click="removeContentBlock(block.id)"
-                        >
-                            <SvgTrash />
-                        </button>
-                    </div>
-                    <input
-                        v-model="block.title"
-                        type="text"
-                        placeholder="Optional image title"
-                    />
-                    <input
-                        v-model="block.alt"
-                        type="text"
-                        placeholder="Image description"
-                    />
-                    <img
-                        v-if="block.imageUrl"
-                        class="image-block-preview"
-                        :src="block.imageUrl"
-                        :alt="block.alt || block.title || `Prayer image ${index + 1}`"
-                    />
-                </section>
             </div>
             <template v-if="prayer.isMultiDay">
                 <div class="title">
@@ -361,6 +406,23 @@
                             </label>
                         </section>
                         <input
+                            v-model="day.thumbnailImageUrl"
+                            type="url"
+                            placeholder="Thumbnail image URL"
+                        />
+                        <label
+                            class="image-drop compact"
+                            @dragover.prevent
+                            @drop.prevent="onImageDrop($event, (file) => setDayThumbnailImage(day, file))"
+                        >
+                            <span>Drop or choose thumbnail image</span>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                @change="onDayThumbnailImageFile(day, $event)"
+                            />
+                        </label>
+                        <input
                             v-model="day.imageUrl"
                             type="url"
                             placeholder="Description image URL"
@@ -438,15 +500,14 @@ const initialState = () => ({
     isPublic: false,
     isMultiDay: false,
     dayCount: 2,
-    contentBlocks: [createContentBlock('static'), createContentBlock('dynamic')],
+    contentBlocks: [createContentBlock('static')],
     days: [
-        { dayNumber: 1, title: '', imageUrl: '' },
-        { dayNumber: 2, title: '', imageUrl: '' },
+        { dayNumber: 1, title: '', imageUrl: '', thumbnailImageUrl: '' },
+        { dayNumber: 2, title: '', imageUrl: '', thumbnailImageUrl: '' },
     ],
 });
 const prayer = reactive(initialState());
 const dynamicContentBlocks = computed(() => prayer.contentBlocks.filter((block) => block.type === 'dynamic'));
-const imageContentBlocks = computed(() => prayer.contentBlocks.filter((block) => block.type === 'image'));
 
 watch(
     data,
@@ -459,20 +520,21 @@ watch(
         prayer.title = value.title || '';
         prayer.isPublic = value.visibility === 'public';
         prayer.isMultiDay = Boolean(value.days?.length);
-        prayer.body = value.editBody || (!prayer.isMultiDay && !value.contentBlocks?.length ? value.body || '' : '');
+        prayer.body = '';
         prayer.dayCount = dayCount;
         prayer.days = value.days?.length
             ? value.days.map((day) => ({
                   dayNumber: day.dayNumber,
                   title: day.title || '',
                   imageUrl: day.imageUrl || '',
+                  thumbnailImageUrl: day.thumbnailImageUrl || '',
                   body: day.body || '',
               }))
             : initialState().days;
         if (value.contentBlocks?.length) {
             const loadedBlocks = value.contentBlocks.map((block) => ({
                 id: block.id || `${Date.now()}-${Math.random()}`,
-                type: block.type === 'dynamic' ? 'dynamic' : block.type === 'image' ? 'image' : 'static',
+                type: prayer.isMultiDay && block.type === 'dynamic' ? 'dynamic' : block.type === 'image' ? 'image' : 'static',
                 name: block.name || (block.type === 'dynamic' ? block.title || '' : ''),
                 title: block.type === 'dynamic' ? '' : block.title || '',
                 body: block.body || '',
@@ -489,9 +551,7 @@ watch(
             }));
 
             if (!prayer.isMultiDay) {
-                const mainTextBlock = loadedBlocks.find((block) => block.id === 'main-prayer-text');
-                prayer.body = mainTextBlock?.body || '';
-                prayer.contentBlocks = loadedBlocks.filter((block) => block.id !== 'main-prayer-text');
+                prayer.contentBlocks = loadedBlocks.length ? loadedBlocks : [createContentBlock('static', dayCount)];
             } else {
                 prayer.contentBlocks = loadedBlocks;
             }
@@ -507,7 +567,12 @@ watch(
                 },
             ];
         } else {
-            prayer.contentBlocks = [createContentBlock('static', dayCount), createContentBlock('dynamic', dayCount)];
+            prayer.contentBlocks = [
+                {
+                    ...createContentBlock('static', dayCount),
+                    body: value.body || value.editBody || '',
+                },
+            ];
         }
         syncDays();
     },
@@ -523,6 +588,7 @@ function syncDays() {
             dayNumber: prayer.days.length + 1,
             title: '',
             imageUrl: '',
+            thumbnailImageUrl: '',
         });
     }
 
@@ -573,7 +639,7 @@ function removeDay(dayNumber) {
 
 function addContentBlock(type) {
     syncDays();
-    prayer.contentBlocks.push(createContentBlock(type, prayer.dayCount));
+    prayer.contentBlocks.push(createContentBlock(prayer.isMultiDay ? type : type === 'image' ? 'image' : 'static', prayer.dayCount));
 }
 
 function addImageContentBlock() {
@@ -581,6 +647,10 @@ function addImageContentBlock() {
 }
 
 function syncBlockType(block) {
+    if (!prayer.isMultiDay && block.type === 'dynamic') {
+        block.type = 'static';
+    }
+
     if (block.type === 'dynamic' && !block.days?.length) {
         block.days = createDynamicDays(prayer.dayCount);
     }
@@ -593,7 +663,7 @@ function syncBlockType(block) {
 }
 
 function removeContentBlock(id) {
-    if (prayer.isMultiDay && prayer.contentBlocks.length <= 1) {
+    if (prayer.contentBlocks.length <= 1) {
         return;
     }
 
@@ -664,11 +734,31 @@ async function onDisplayImageFile(block, event) {
     event.target.value = '';
 }
 
+async function onDayThumbnailImageFile(day, event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    await setDayThumbnailImage(day, file);
+    event.target.value = '';
+}
+
 async function setDisplayImage(block, file) {
     try {
         block.type = 'image';
         block.imageUrl = await imageFileToDataUrl(file);
         block.alt = block.alt || file.name.replace(/\.[^.]+$/, '');
+        clearOcrStatus();
+    } catch (error) {
+        console.error({ error });
+    }
+}
+
+async function setDayThumbnailImage(day, file) {
+    try {
+        day.thumbnailImageUrl = await imageFileToDataUrl(file);
         clearOcrStatus();
     } catch (error) {
         console.error({ error });
@@ -714,7 +804,11 @@ async function addTextFromImage(file, targetDay = null, block = null) {
         }
 
         if (!prayer.isMultiDay) {
-            prayer.body = [prayer.body, text].filter(Boolean).join('\n\n');
+            prayer.contentBlocks.push({
+                ...createContentBlock('static', prayer.dayCount),
+                title: 'Imported image text',
+                body: text,
+            });
             return;
         }
 
@@ -730,7 +824,9 @@ async function addTextFromImage(file, targetDay = null, block = null) {
 }
 
 function serializeContentBlocks() {
-    return prayer.contentBlocks.map((block) => {
+    return prayer.contentBlocks
+        .filter((block) => prayer.isMultiDay || block.type !== 'dynamic')
+        .map((block) => {
         if (block.type === 'dynamic') {
             return {
                 id: block.id,
@@ -765,33 +861,11 @@ function serializeContentBlocks() {
 
 function buildPrayerPayload() {
     if (!prayer.isMultiDay) {
-        const contentBlocks = serializeContentBlocks();
-
-        if (contentBlocks.length) {
-            const body = prayer.body?.trim();
-
-            return {
-                title: prayer.title,
-                body: '',
-                visibility: prayer.isPublic ? 'public' : 'private',
-                contentBlocks: body
-                    ? [
-                          {
-                              id: 'main-prayer-text',
-                              type: 'static',
-                              title: '',
-                              body,
-                          },
-                          ...contentBlocks,
-                      ]
-                    : contentBlocks,
-            };
-        }
-
         return {
             title: prayer.title,
-            body: prayer.body,
+            body: '',
             visibility: prayer.isPublic ? 'public' : 'private',
+            contentBlocks: serializeContentBlocks(),
         };
     }
 
@@ -802,6 +876,7 @@ function buildPrayerPayload() {
         title: day.title,
         body: getDynamicDayBody(day.dayNumber),
         imageUrl: day.imageUrl,
+        thumbnailImageUrl: day.thumbnailImageUrl,
         contentMode: 'dynamic',
     }));
 
@@ -811,6 +886,26 @@ function buildPrayerPayload() {
         contentBlocks: serializeContentBlocks(),
         days,
     };
+}
+
+function onMultiDayToggle() {
+    if (prayer.isMultiDay && !prayer.contentBlocks.some((block) => block.type === 'dynamic')) {
+        prayer.contentBlocks.push(createContentBlock('dynamic', prayer.dayCount));
+    }
+
+    if (!prayer.isMultiDay) {
+        prayer.contentBlocks = prayer.contentBlocks.map((block) =>
+            block.type === 'dynamic'
+                ? {
+                      ...createContentBlock('static', prayer.dayCount),
+                      title: block.name || block.title || '',
+                      body: block.days?.[0]?.body || '',
+                  }
+                : block,
+        );
+    }
+
+    syncDays();
 }
 
 async function onSave() {
