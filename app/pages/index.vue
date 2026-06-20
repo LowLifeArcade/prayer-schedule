@@ -199,8 +199,16 @@
                             :alt="item.title"
                             @click="onPrayerClick(item.id, item.currentDayNumber)"
                         />
-                        <div class="title">
-                            <h3 @click="onPrayerClick(item.id, item.currentDayNumber)">{{ item.title }}</h3>
+                        <div
+                            class="title"
+                            :class="{ 'title-hidden': item.showTitleInThumbnail === false }"
+                        >
+                            <h3
+                                v-if="item.showTitleInThumbnail !== false"
+                                @click="onPrayerClick(item.id, item.currentDayNumber)"
+                            >
+                                {{ item.title }}
+                            </h3>
                             <span class="ctx-menu-section">
                                 <SvgDots
                                     class="ctx-menu-btn"
@@ -290,6 +298,15 @@
                 <span>Public prayer</span>
                 <input
                     v-model="prayer.isPublic"
+                    type="checkbox"
+                    role="switch"
+                />
+                <span class="toggle-track"></span>
+            </label>
+            <label class="toggle-row">
+                <span>Show title in thumbnail</span>
+                <input
+                    v-model="prayer.showTitleInThumbnail"
                     type="checkbox"
                     role="switch"
                 />
@@ -839,6 +856,7 @@ const initialState = () => ({
     title: null,
     body: null,
     isPublic: false,
+    showTitleInThumbnail: true,
     isMultiDay: false,
     dayCount: 2,
     contentBlocks: [createContentBlock('static')],
@@ -1237,6 +1255,7 @@ function buildPrayerPayload() {
             title: prayer.title,
             body: '',
             visibility: prayer.isPublic ? 'public' : 'private',
+            showTitleInThumbnail: prayer.showTitleInThumbnail,
             contentBlocks: serializeContentBlocks(),
         };
     }
@@ -1255,6 +1274,7 @@ function buildPrayerPayload() {
     return {
         title: prayer.title,
         visibility: prayer.isPublic ? 'public' : 'private',
+        showTitleInThumbnail: prayer.showTitleInThumbnail,
         contentBlocks: serializeContentBlocks(),
         days,
     };
@@ -1886,6 +1906,10 @@ function onMultiDayToggle() {
                 align-items: flex-start;
                 justify-content: space-between;
                 width: 100%;
+
+                &.title-hidden {
+                    justify-content: flex-end;
+                }
 
                 h3 {
                     cursor: pointer;

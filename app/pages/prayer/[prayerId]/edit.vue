@@ -36,6 +36,15 @@
                 <span class="toggle-track"></span>
             </label>
             <label class="toggle-row">
+                <span>Show title in thumbnail</span>
+                <input
+                    v-model="prayer.showTitleInThumbnail"
+                    type="checkbox"
+                    role="switch"
+                />
+                <span class="toggle-track"></span>
+            </label>
+            <label class="toggle-row">
                 <span>Multi day prayer</span>
                 <input
                     v-model="prayer.isMultiDay"
@@ -500,6 +509,7 @@ const initialState = () => ({
     title: '',
     body: '',
     isPublic: false,
+    showTitleInThumbnail: true,
     isMultiDay: false,
     dayCount: 2,
     contentBlocks: [createContentBlock('static')],
@@ -521,6 +531,7 @@ watch(
         const dayCount = Math.max(value.days?.length || 0, 2);
         prayer.title = value.title || '';
         prayer.isPublic = value.visibility === 'public';
+        prayer.showTitleInThumbnail = value.showTitleInThumbnail !== false;
         prayer.isMultiDay = Boolean(value.days?.length);
         prayer.body = '';
         prayer.dayCount = dayCount;
@@ -867,6 +878,7 @@ function buildPrayerPayload() {
             title: prayer.title,
             body: '',
             visibility: prayer.isPublic ? 'public' : 'private',
+            showTitleInThumbnail: prayer.showTitleInThumbnail,
             contentBlocks: serializeContentBlocks(),
         };
     }
@@ -885,6 +897,7 @@ function buildPrayerPayload() {
     return {
         title: prayer.title,
         visibility: prayer.isPublic ? 'public' : 'private',
+        showTitleInThumbnail: prayer.showTitleInThumbnail,
         contentBlocks: serializeContentBlocks(),
         days,
     };

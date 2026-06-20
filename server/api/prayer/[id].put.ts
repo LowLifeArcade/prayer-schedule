@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
     const { id } = getRouterParams(event);
-    const { title, body, days = [], contentBlocks = [], visibility = 'private' } = await readBody(event);
+    const { title, body, days = [], contentBlocks = [], visibility = 'private', showTitleInThumbnail = true } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
     const { user } = await getUserSession(event);
@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const normalizedTitle = title?.trim();
     const normalizedVisibility = visibility === 'public' ? 'public' : 'private';
+    const normalizedShowTitleInThumbnail = showTitleInThumbnail !== false;
     if (!normalizedTitle) {
         throw createError({ statusCode: 422, message: 'Title is required' });
     }
@@ -62,10 +63,10 @@ export default defineEventHandler(async (event) => {
             d1
                 .prepare(
                     `UPDATE prayers
-                     SET title = ?, preview = ?, updated_at = unixepoch(), visibility = ?
+                     SET title = ?, preview = ?, updated_at = unixepoch(), visibility = ?, show_title_in_thumbnail = ?
                      WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
                 )
-                .bind(normalizedTitle, preview, normalizedVisibility, id, user.uid),
+                .bind(normalizedTitle, preview, normalizedVisibility, normalizedShowTitleInThumbnail ? 1 : 0, id, user.uid),
             d1.prepare('UPDATE prayer_bodies SET body = ? WHERE prayer_id = ?').bind(prayerBody, id),
             d1.prepare('DELETE FROM prayer_days WHERE prayer_id = ?').bind(id),
             d1.prepare('DELETE FROM prayer_progress WHERE user_id = ? AND prayer_id = ?').bind(user.uid, id),
@@ -90,7 +91,15 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not update prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id, title: normalizedTitle, body: prayerBody, visibility: normalizedVisibility, days: normalizedDays };
+    return {
+        message: 'success',
+        id,
+        title: normalizedTitle,
+        body: prayerBody,
+        visibility: normalizedVisibility,
+        showTitleInThumbnail: normalizedShowTitleInThumbnail,
+        days: normalizedDays,
+    };
 });
 
 function normalizeContentBlocks(contentBlocks: unknown) {

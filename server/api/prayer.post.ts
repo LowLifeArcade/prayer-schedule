@@ -1,5 +1,13 @@
 export default defineEventHandler(async (event) => {
-    const { title, body, days = [], contentBlocks = [], listName = 'default', visibility = 'private' } = await readBody(event);
+    const {
+        title,
+        body,
+        days = [],
+        contentBlocks = [],
+        listName = 'default',
+        visibility = 'private',
+        showTitleInThumbnail = true,
+    } = await readBody(event);
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
 
@@ -12,6 +20,7 @@ export default defineEventHandler(async (event) => {
     const prayerId = uuidv7();
     const normalizedTitle = title?.trim();
     const normalizedVisibility = visibility === 'public' ? 'public' : 'private';
+    const normalizedShowTitleInThumbnail = showTitleInThumbnail !== false;
 
     if (!normalizedTitle) {
         throw createError({ statusCode: 422, message: 'Title is required' });
@@ -45,8 +54,10 @@ export default defineEventHandler(async (event) => {
     try {
         const statements = [
             d1
-                .prepare('INSERT INTO prayers (id, title, user_id, visibility, preview) VALUES (?, ?, ?, ?, ?)')
-                .bind(prayerId, normalizedTitle, user.uid, normalizedVisibility, preview),
+                .prepare(
+                    'INSERT INTO prayers (id, title, user_id, visibility, show_title_in_thumbnail, preview) VALUES (?, ?, ?, ?, ?, ?)',
+                )
+                .bind(prayerId, normalizedTitle, user.uid, normalizedVisibility, normalizedShowTitleInThumbnail ? 1 : 0, preview),
             d1.prepare('INSERT INTO prayer_bodies (prayer_id, body) VALUES (?, ?)').bind(prayerId, prayerBody),
             d1
                 .prepare(`
@@ -82,7 +93,15 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'could not add prayer', statusCode: 422 });
     }
 
-    return { message: 'success', id: prayerId, title: normalizedTitle, body: prayerBody, visibility: normalizedVisibility, days: normalizedDays };
+    return {
+        message: 'success',
+        id: prayerId,
+        title: normalizedTitle,
+        body: prayerBody,
+        visibility: normalizedVisibility,
+        showTitleInThumbnail: normalizedShowTitleInThumbnail,
+        days: normalizedDays,
+    };
 });
 
 function normalizeContentBlocks(contentBlocks: unknown) {

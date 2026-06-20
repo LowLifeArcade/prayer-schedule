@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...prayerRow,
+        showTitleInThumbnail: prayerRow.show_title_in_thumbnail !== 0,
         body: composedBlocks.length
             ? selectedBlocks
                   .map((block) => block.body)

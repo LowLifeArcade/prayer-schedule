@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     // use KV to cache
     const prayers = await db.sql`
         SELECT
-            p.id, p.title, p.user_id, p.visibility, p.preview, pb.body, pp.pos
+            p.id, p.title, p.user_id, p.visibility, p.show_title_in_thumbnail, p.preview, pb.body, pp.pos
         FROM prayers p
         JOIN prayer_bodies pb
             ON pb.prayer_id = p.id
@@ -80,6 +80,7 @@ export default defineEventHandler(async (event) => {
         return {
             ...prayerSummary,
             isOwner: prayer.user_id === session.user.uid,
+            showTitleInThumbnail: prayer.show_title_in_thumbnail !== 0,
             days: prayerDays.map((day) => ({
                 dayNumber: day.day_number,
                 isComplete: completedDays.has(day.day_number),

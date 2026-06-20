@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
         SELECT
             p.id,
             p.title,
+            p.show_title_in_thumbnail,
             p.preview,
             p.user_id,
             u.name AS creator_name,
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
     return prayers.rows.map((prayer) => ({
         id: prayer.id,
         title: prayer.title,
+        showTitleInThumbnail: prayer.show_title_in_thumbnail !== 0,
         preview: prayer.preview,
         creatorName: prayer.creator_name,
         totalDays: prayer.total_days || 1,
