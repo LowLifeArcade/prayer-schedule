@@ -55,7 +55,11 @@
                 />
             </figure>
 
-            <article class="prayer-card">
+            <article
+                class="prayer-card"
+                :class="{ 'from-prayer-tile': activePrayerTransitionId === String(prayerId) }"
+                :style="prayerCardStyle"
+            >
                 <h2
                     v-if="data?.selectedDayTitle"
                     class="day-title"
@@ -133,15 +137,30 @@ definePageMeta({
 // https://www.npmjs.com/package/@chenglou/pretext
 const route = useRoute();
 const prayerId = route.params.prayerId;
-const selectedDayNumber = computed(() => Number(route.query.day || data.value?.selectedDayNumber || 1));
+const requestedDayNumber = computed(() => route.query.day || null);
+const { activePrayerTransitionId, getCachedPrayerDetail, setCachedPrayerDetail, toPrayerTransitionName } = usePrayerDetailCache();
 const { data, pending, refresh } = useFetch(`/api/prayer/${prayerId}`, {
     query: computed(() => ({ day: route.query.day })),
+    default: () => getCachedPrayerDetail(prayerId, requestedDayNumber.value) || null,
+    transform: (value) => {
+        setCachedPrayerDetail(prayerId, requestedDayNumber.value, value);
+
+        if (value?.selectedDayNumber) {
+            setCachedPrayerDetail(prayerId, value.selectedDayNumber, value);
+        }
+
+        return value;
+    },
 });
+const selectedDayNumber = computed(() => Number(route.query.day || data.value?.selectedDayNumber || 1));
 
 const { loggedIn } = useUserSession();
 const router = useRouter();
 const isEditing = computed(() => route.name === 'prayer-prayerId-edit');
 const previousPath = ref('');
+const prayerCardStyle = computed(() => ({
+    viewTransitionName: activePrayerTransitionId.value === String(prayerId) ? toPrayerTransitionName(prayerId) : 'none',
+}));
 
 const isSelectedDayComplete = computed(() => data.value?.completedDays?.includes(selectedDayNumber.value));
 const dayLabel = computed(() => {
@@ -350,6 +369,10 @@ async function onDone() {
         border-radius: 0.8rem;
         background: var(--color-surface);
         box-shadow: 0 1.8rem 4rem color-mix(in srgb, var(--black) 8%, transparent);
+
+        &.from-prayer-tile {
+            animation: prayer-card-expand 420ms cubic-bezier(0.2, 0.72, 0.22, 1);
+        }
     }
 
     .prayer-content {
@@ -472,6 +495,26 @@ async function onDone() {
         .done-btn {
             width: 100%;
         }
+    }
+}
+
+@keyframes prayer-card-expand {
+    from {
+        opacity: 0.84;
+        transform: translateY(1.6rem) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .v-prayers .prayer,
+    .v-prayer .prayer-card {
+        transition: none;
+        animation: none;
     }
 }
 </style>

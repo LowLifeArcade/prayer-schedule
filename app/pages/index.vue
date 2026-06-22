@@ -183,7 +183,11 @@
                     v-for="item in displayedPrayers"
                     :key="item.id"
                 >
-                    <div class="prayer">
+                    <div
+                        class="prayer"
+                        :class="{ 'is-opening': activePrayerTransitionId === String(item.id) }"
+                        :style="getPrayerTileStyle(item.id)"
+                    >
                         <span
                             v-if="item.isPrayed"
                             class="prayed-badge"
@@ -742,6 +746,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 const { loggedIn, user, fetch: refreshSession, clear, ready, openInPopup, session } = useUserSession();
 const router = useRouter();
 const { ocrStatus, clearOcrStatus, imageFileToDataUrl, imageFileToText } = usePrayerImageTools();
+const { activePrayerTransitionId, prefetchPrayerDetail, prefetchPrayerDetails, toPrayerTransitionName } = usePrayerDetailCache();
 
 const { data: prayers, pending, refresh, execute } = await useFetch('/api/prayers');
 const displayedPrayers = ref([]);
@@ -791,6 +796,16 @@ watch(
     prayers,
     (items) => {
         displayedPrayers.value = sortPrayers(items || []);
+    },
+    { immediate: true },
+);
+
+watch(
+    displayedPrayers,
+    (items) => {
+        if (loggedIn.value) {
+            prefetchPrayerDetails(items);
+        }
     },
     { immediate: true },
 );
@@ -893,15 +908,46 @@ async function onLogout() {
     refresh();
 }
 
-function onPrayerClick(prayerId, dayNumber) {
+function getPrayerTileStyle(prayerId) {
+    const id = String(prayerId);
+
+    return {
+        viewTransitionName: activePrayerTransitionId.value === id ? toPrayerTransitionName(id) : 'none',
+    };
+}
+
+async function onPrayerClick(prayerId, dayNumber) {
     closeMenu();
-    router.push({
+    const routeLocation = {
         name: 'prayer-prayerId',
         params: {
             prayerId,
         },
         query: dayNumber ? { day: dayNumber } : undefined,
+    };
+    const navigate = () => router.push(routeLocation);
+
+    activePrayerTransitionId.value = String(prayerId);
+    prefetchPrayerDetail(prayerId, dayNumber).catch((error) => {
+        console.warn('Could not prefetch prayer detail before navigation', { error, prayerId, dayNumber });
     });
+
+    if (import.meta.client && document.startViewTransition) {
+        try {
+            await document.startViewTransition(navigate).finished;
+            return;
+        } finally {
+            activePrayerTransitionId.value = null;
+        }
+    }
+
+    try {
+        await navigate();
+    } finally {
+        window.setTimeout(() => {
+            activePrayerTransitionId.value = null;
+        }, 420);
+    }
 }
 
 function onDaySelect(prayerId, dayNumber) {
@@ -1873,6 +1919,20 @@ function onMultiDayToggle() {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            transition:
+                border-color 180ms ease,
+                box-shadow 180ms ease,
+                transform 180ms ease;
+
+            &:hover {
+                border-color: var(--color-text-muted);
+                box-shadow: 0 1rem 2.4rem color-mix(in srgb, var(--black) 10%, transparent);
+                transform: translateY(-2px);
+            }
+
+            &.is-opening {
+                box-shadow: 0 1.6rem 3.2rem color-mix(in srgb, var(--black) 16%, transparent);
+            }
 
             .prayed-badge {
                 position: absolute;
