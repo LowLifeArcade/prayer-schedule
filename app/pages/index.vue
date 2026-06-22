@@ -169,7 +169,42 @@
                 >
             </section>
         </main>
-        <ul v-if="loggedIn && !showAddPrayerForm">
+        <div
+            v-if="loggedIn && !showAddPrayerForm"
+            class="prayer-list-shell"
+        >
+            <div class="prayer-list-actions">
+                <button
+                    class="ctx-menu-btn"
+                    type="button"
+                    aria-label="Prayer list actions"
+                    :aria-expanded="openMenuId === listMenuId"
+                    @click.stop="toggleMenu(listMenuId)"
+                >
+                    <SvgDots
+                        alt=""
+                        height="27"
+                        width="27"
+                    />
+                </button>
+                <div
+                    v-if="openMenuId === listMenuId"
+                    class="ctx-menu"
+                    role="menu"
+                    @click.stop
+                >
+                    <ul>
+                        <li
+                            role="menuitem"
+                            tabindex="0"
+                            @click.stop="onMarkAllCurrentDaysNotPrayed"
+                            @keydown.enter.prevent.stop="onMarkAllCurrentDaysNotPrayed"
+                        >
+                            Mark all not prayed
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <VueDraggable
                 v-model="displayedPrayers"
                 class="prayers"
@@ -243,6 +278,14 @@
                                             Open
                                         </li>
                                         <li
+                                            role="menuitem"
+                                            tabindex="0"
+                                            @click.stop="onTogglePrayerProgress(item)"
+                                            @keydown.enter.prevent.stop="onTogglePrayerProgress(item)"
+                                        >
+                                            {{ getProgressMenuLabel(item) }}
+                                        </li>
+                                        <li
                                             v-if="item.isOwner"
                                             role="menuitem"
                                             tabindex="0"
@@ -300,7 +343,7 @@
                     </button>
                 </li>
             </VueDraggable>
-        </ul>
+        </div>
 
         <form
             v-if="showAddPrayerForm"
@@ -903,6 +946,7 @@ const initialState = () => ({
 const prayer = reactive(initialState());
 const dynamicContentBlocks = computed(() => prayer.contentBlocks.filter((block) => block.type === 'dynamic'));
 const openMenuId = ref();
+const listMenuId = 'prayer-list';
 const showBSOD = ref();
 const bsodRef = ref(null);
 
@@ -972,6 +1016,43 @@ async function onPrayerClick(prayerId, dayNumber) {
 
 function onDaySelect(prayerId, dayNumber) {
     onPrayerClick(prayerId, dayNumber);
+}
+
+function isCurrentDayComplete(item) {
+    const currentDayNumber = Number(item.currentDayNumber || 1);
+    const currentDay = item.days?.find((day) => Number(day.dayNumber) === currentDayNumber);
+
+    return currentDay?.isComplete ?? item.isPrayed;
+}
+
+function getProgressMenuLabel(item) {
+    return isCurrentDayComplete(item) ? 'Mark not prayed' : 'Mark prayed';
+}
+
+async function setPrayerCurrentDayProgress(item, isComplete) {
+    await $fetch(`/api/prayer/${item.id}/progress`, {
+        method: 'post',
+        body: {
+            dayNumber: item.currentDayNumber || 1,
+            isComplete,
+        },
+    });
+}
+
+async function onTogglePrayerProgress(item) {
+    const shouldComplete = !isCurrentDayComplete(item);
+
+    closeMenu();
+    await setPrayerCurrentDayProgress(item, shouldComplete);
+    await refresh();
+}
+
+async function onMarkAllCurrentDaysNotPrayed() {
+    const items = displayedPrayers.value || [];
+
+    closeMenu();
+    await Promise.all(items.map((item) => setPrayerCurrentDayProgress(item, false)));
+    await refresh();
 }
 
 function onEdit(prayerId) {
@@ -1911,7 +1992,92 @@ function onMultiDayToggle() {
             }
         }
 
-        .prayers {
+        .prayer-list-shell {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .prayer-list-actions {
+        position: relative;
+        justify-self: end;
+        z-index: 2;
+
+        &:has(.ctx-menu) {
+            z-index: 3;
+        }
+    }
+
+    .ctx-menu-btn {
+        display: grid;
+        place-items: center;
+        width: 3.6rem;
+        height: 3.6rem;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--color-text);
+        cursor: pointer;
+        transition:
+            background-color 160ms ease,
+            color 160ms ease;
+
+        &:hover,
+        &:focus-visible,
+        &[aria-expanded='true'] {
+            background: var(--color-surface-2);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text);
+            outline-offset: 2px;
+        }
+    }
+
+    .ctx-menu {
+        border-radius: 0.8rem;
+        position: absolute;
+        top: calc(100% + 0.6rem);
+        right: 0;
+        min-width: 17rem;
+        box-shadow: 0 1.2rem 2.4rem rgba(0 0 0 / 0.22);
+        padding: 0.6rem;
+        z-index: 3;
+        background: var(--color-surface-2);
+        border: 1px solid var(--color-border-2);
+        cursor: default;
+
+        ul {
+            display: grid;
+            gap: 0.2rem;
+
+            li {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                min-height: 3.6rem;
+                padding: 0.8rem 1rem;
+                border-radius: 0.6rem;
+                color: var(--color-text);
+                cursor: pointer;
+                outline: none;
+                transition:
+                    background-color 140ms ease,
+                    color 140ms ease;
+
+                &:hover,
+                &:focus-visible {
+                    background: var(--color-surface);
+                }
+            }
+
+            .delete {
+                color: var(--color-danger, #b63b31);
+            }
+        }
+    }
+
+    .prayers {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         gap: 2rem;
