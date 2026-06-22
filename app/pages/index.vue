@@ -214,29 +214,49 @@
                                 {{ item.title }}
                             </h3>
                             <span class="ctx-menu-section">
-                                <SvgDots
+                                <button
                                     class="ctx-menu-btn"
-                                    alt=""
-                                    height="27"
-                                    width="27"
+                                    type="button"
+                                    aria-label="Prayer actions"
+                                    :aria-expanded="openMenuId === item.id"
                                     @click.stop="toggleMenu(item.id)"
-                                />
+                                >
+                                    <SvgDots
+                                        alt=""
+                                        height="27"
+                                        width="27"
+                                    />
+                                </button>
                                 <div
                                     v-if="openMenuId === item.id"
                                     class="ctx-menu"
+                                    role="menu"
                                     @click.stop
                                 >
                                     <ul>
-                                        <li @click.stop="onPrayerClick(item.id, item.currentDayNumber)">Open</li>
+                                        <li
+                                            role="menuitem"
+                                            tabindex="0"
+                                            @click.stop="onPrayerClick(item.id, item.currentDayNumber)"
+                                            @keydown.enter.prevent.stop="onPrayerClick(item.id, item.currentDayNumber)"
+                                        >
+                                            Open
+                                        </li>
                                         <li
                                             v-if="item.isOwner"
+                                            role="menuitem"
+                                            tabindex="0"
                                             @click.stop="onEdit(item.id)"
+                                            @keydown.enter.prevent.stop="onEdit(item.id)"
                                         >
                                             Edit
                                         </li>
                                         <li
                                             class="delete danger"
+                                            role="menuitem"
+                                            tabindex="0"
                                             @click.stop="onDelete(item.id)"
+                                            @keydown.enter.prevent.stop="onDelete(item.id)"
                                         >
                                             Delete <SvgTrash />
                                         </li>
@@ -1349,10 +1369,11 @@ function onMultiDayToggle() {
 
 <style scoped>
 .v-prayers {
+    position: relative;
     overflow-x: clip;
 
     .overlay {
-        position: absolute;
+        position: fixed;
         background-color: var(--color-bg-2);
         opacity: 0.2;
         top: 0;
@@ -1934,6 +1955,10 @@ function onMultiDayToggle() {
                 box-shadow: 0 1.6rem 3.2rem color-mix(in srgb, var(--black) 16%, transparent);
             }
 
+            &:has(.ctx-menu) {
+                z-index: 2;
+            }
+
             .prayed-badge {
                 position: absolute;
                 top: -1.3rem;
@@ -1978,33 +2003,75 @@ function onMultiDayToggle() {
 
                 .ctx-menu-section {
                     position: relative;
+                    z-index: 2;
 
                     .ctx-menu-btn {
+                        display: grid;
+                        place-items: center;
+                        width: 3.6rem;
+                        height: 3.6rem;
+                        margin: -0.45rem -0.45rem 0 0;
+                        border: 0;
+                        border-radius: 999px;
+                        background: transparent;
+                        color: var(--color-text);
                         cursor: pointer;
+                        transition:
+                            background-color 160ms ease,
+                            color 160ms ease;
+
+                        &:hover,
+                        &:focus-visible,
+                        &[aria-expanded='true'] {
+                            background: var(--color-surface-2);
+                        }
+
+                        &:focus-visible {
+                            outline: 2px solid var(--color-text);
+                            outline-offset: 2px;
+                        }
                     }
 
                     .ctx-menu {
                         border-radius: 0.8rem;
                         position: absolute;
-                        top: 0;
+                        top: calc(100% + 0.6rem);
                         right: 0;
-                        box-shadow: 0.1rem 0.1rem 0.4rem rgba(0 0 0 / 0.3);
-                        padding: 1rem;
-                        z-index: 1;
+                        min-width: 13rem;
+                        box-shadow: 0 1.2rem 2.4rem rgba(0 0 0 / 0.22);
+                        padding: 0.6rem;
+                        z-index: 3;
                         background: var(--color-surface-2);
+                        border: 1px solid var(--color-border-2);
+                        cursor: default;
 
                         ul {
                             display: grid;
-                            gap: 1rem;
+                            gap: 0.2rem;
 
                             li {
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                gap: 1rem;
+                                min-height: 3.6rem;
+                                padding: 0.8rem 1rem;
+                                border-radius: 0.6rem;
+                                color: var(--color-text);
                                 cursor: pointer;
+                                outline: none;
+                                transition:
+                                    background-color 140ms ease,
+                                    color 140ms ease;
+
+                                &:hover,
+                                &:focus-visible {
+                                    background: var(--color-surface);
+                                }
                             }
 
                             .delete {
-                                display: flex;
-                                align-items: center;
-                                gap: 1rem;
+                                color: var(--color-danger, #b63b31);
                             }
                         }
                     }
