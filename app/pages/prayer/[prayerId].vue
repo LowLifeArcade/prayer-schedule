@@ -123,8 +123,24 @@
                 >
                     {{ isSelectedDayComplete ? 'Mark not prayed' : 'Mark prayed' }}
                 </button>
+                <button
+                    v-if="data?.isAdded && data?.totalDays > 1"
+                    class="restart-btn"
+                    @click="showRestartConfirm = true"
+                >
+                    Restart days
+                </button>
             </div>
         </main>
+        <ConfirmModal
+            :open="showRestartConfirm"
+            title="Restart this prayer?"
+            message="This clears all prayed days and puts the prayer back on day 1."
+            confirm-label="Restart"
+            cancel-label="Keep progress"
+            @confirm="onRestart"
+            @cancel="showRestartConfirm = false"
+        />
     </div>
 </template>
 
@@ -158,6 +174,7 @@ const { loggedIn } = useUserSession();
 const router = useRouter();
 const isEditing = computed(() => route.name === 'prayer-prayerId-edit');
 const previousPath = ref('');
+const showRestartConfirm = ref(false);
 const prayerCardStyle = computed(() => ({
     viewTransitionName: activePrayerTransitionId.value === String(prayerId) ? toPrayerTransitionName(prayerId) : 'none',
 }));
@@ -215,6 +232,31 @@ async function onDone() {
     if (shouldComplete) {
         await router.push('/');
         return;
+    }
+
+    await refresh();
+}
+
+async function onRestart() {
+    showRestartConfirm.value = false;
+
+    await $fetch(`/api/prayer/${prayerId}/progress`, {
+        method: 'post',
+        body: {
+            reset: true,
+        },
+    });
+
+    if (selectedDayNumber.value !== 1) {
+        await router.replace({
+            name: 'prayer-prayerId',
+            params: {
+                prayerId,
+            },
+            query: {
+                day: 1,
+            },
+        });
     }
 
     await refresh();
@@ -419,7 +461,8 @@ async function onDone() {
     }
 
     .edit-btn,
-    .done-btn {
+    .done-btn,
+    .restart-btn {
         min-height: 5.6rem;
         padding: 1.4rem 2.2rem;
         border-radius: 0.8rem;
@@ -444,6 +487,12 @@ async function onDone() {
     .edit-btn {
         border: 1px solid var(--color-border-2);
         background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .restart-btn {
+        border: 1px solid var(--color-border-2);
+        background: var(--color-surface-2);
         color: var(--color-text);
     }
 
@@ -492,7 +541,8 @@ async function onDone() {
         }
 
         .edit-btn,
-        .done-btn {
+        .done-btn,
+        .restart-btn {
             width: 100%;
         }
     }

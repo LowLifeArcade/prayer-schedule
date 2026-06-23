@@ -278,6 +278,15 @@
                                             Open
                                         </li>
                                         <li
+                                            v-if="item.totalDays > 1"
+                                            role="menuitem"
+                                            tabindex="0"
+                                            @click.stop="openRestartPrayerConfirm(item)"
+                                            @keydown.enter.prevent.stop="openRestartPrayerConfirm(item)"
+                                        >
+                                            Restart prayer
+                                        </li>
+                                        <li
                                             role="menuitem"
                                             tabindex="0"
                                             @click.stop="onTogglePrayerProgress(item)"
@@ -800,6 +809,15 @@
             @confirm="confirmCancelCreate"
             @cancel="showCancelConfirm = false"
         />
+        <ConfirmModal
+            :open="Boolean(restartPrayer)"
+            title="Restart this prayer?"
+            :message="`This clears all prayed days for ${restartPrayer?.title || 'this prayer'} and puts it back on day 1.`"
+            confirm-label="Restart"
+            cancel-label="Keep progress"
+            @confirm="confirmRestartPrayer"
+            @cancel="restartPrayer = null"
+        />
     </div>
 </template>
 
@@ -947,6 +965,7 @@ const prayer = reactive(initialState());
 const dynamicContentBlocks = computed(() => prayer.contentBlocks.filter((block) => block.type === 'dynamic'));
 const openMenuId = ref();
 const listMenuId = 'prayer-list';
+const restartPrayer = ref(null);
 const showBSOD = ref();
 const bsodRef = ref(null);
 
@@ -1044,6 +1063,28 @@ async function onTogglePrayerProgress(item) {
 
     closeMenu();
     await setPrayerCurrentDayProgress(item, shouldComplete);
+    await refresh();
+}
+
+function openRestartPrayerConfirm(item) {
+    restartPrayer.value = item;
+    closeMenu();
+}
+
+async function confirmRestartPrayer() {
+    const item = restartPrayer.value;
+    restartPrayer.value = null;
+
+    if (!item) {
+        return;
+    }
+
+    await $fetch(`/api/prayer/${item.id}/progress`, {
+        method: 'post',
+        body: {
+            reset: true,
+        },
+    });
     await refresh();
 }
 
