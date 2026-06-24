@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import { ONE_DAY, ONE_HOUR } from '~~/server/constants/time';
+import { ONE_DAY, ONE_HOUR, ONE_MONTH } from '~~/server/constants/time';
 import { uuidv7 } from '~~/server/utils/uuid';
 import { OAUTH } from '~~/server/constants/auth';
 
@@ -56,7 +56,7 @@ export default defineOAuthGoogleEventHandler({
                     throw innerError;
                 }
             }
-            await setUserSession(event, { user: { ...user, uid } });
+            await setUserSession(event, { user: { ...user, uid } }, { maxAge: ONE_MONTH });
         } catch (error) {
             console.error({ error, message: 'problem creating or updating user' });
             return sendRedirect(event, '/');
