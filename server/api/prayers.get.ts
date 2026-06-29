@@ -1,3 +1,30 @@
+import { getFirstContentImageUrl, parseContentBlocks, renderContentBlocks } from '~~/shared/prayer';
+
+interface PrayerListRow {
+    id: string;
+    title: string;
+    user_id: string;
+    visibility: string;
+    show_title_in_thumbnail: number;
+    preview: string;
+    body: string;
+    pos: number;
+}
+
+interface PrayerDayRow {
+    prayer_id: string;
+    day_number: number;
+    body: string;
+    image_url: string | null;
+    thumbnail_image_url: string | null;
+    content_mode: string;
+}
+
+interface PrayerProgressRow {
+    prayer_id: string;
+    day_number: number;
+}
+
 export default defineEventHandler(async (event) => {
     const session = await getUserSession(event);
 
@@ -25,7 +52,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'There was a problem getting prayers', statusCode: 400 });
     }
 
-    const prayerIds = prayers.rows.map((prayer) => prayer.id);
+    const prayerRows = (prayers.rows || []) as unknown as PrayerListRow[];
+    const prayerIds = prayerRows.map((prayer) => prayer.id);
 
     if (!prayerIds.length) {
         return [];
@@ -53,18 +81,21 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'There was a problem getting prayer progress', statusCode: 400 });
     }
 
-    const daysByPrayer = new Map();
-    for (const day of days.rows) {
+    const dayRows = (days.rows || []) as unknown as PrayerDayRow[];
+    const progressRows = (progress.rows || []) as unknown as PrayerProgressRow[];
+    const daysByPrayer = new Map<string, PrayerDayRow[]>();
+    for (const day of dayRows) {
         daysByPrayer.set(day.prayer_id, [...(daysByPrayer.get(day.prayer_id) || []), day]);
     }
 
-    const completedByPrayer = new Map();
-    for (const item of progress.rows) {
+    const completedByPrayer = new Map<string, PrayerProgressRow[]>();
+    for (const item of progressRows) {
         completedByPrayer.set(item.prayer_id, [...(completedByPrayer.get(item.prayer_id) || []), item]);
     }
 
-    return prayers.rows.map((prayer) => {
-        const prayerDays = daysByPrayer.get(prayer.id) || [];
+    const userId = session.user.uid;
+    return prayerRows.map((prayer) => {
+        const prayerDays: PrayerDayRow[] = daysByPrayer.get(prayer.id) || [];
         const availableDayNumbers = new Set(prayerDays.length ? prayerDays.map((day) => day.day_number) : [1]);
         const completedDays = new Set(
             (completedByPrayer.get(prayer.id) || []).map((item) => item.day_number).filter((dayNumber) => availableDayNumbers.has(dayNumber)),
@@ -79,7 +110,7 @@ export default defineEventHandler(async (event) => {
 
         return {
             ...prayerSummary,
-            isOwner: prayer.user_id === session.user.uid,
+            isOwner: prayer.user_id === userId,
             showTitleInThumbnail: prayer.show_title_in_thumbnail !== 0,
             days: prayerDays.map((day) => ({
                 dayNumber: day.day_number,
@@ -99,63 +130,3 @@ export default defineEventHandler(async (event) => {
         };
     });
 });
-
-function parseContentBlocks(body: unknown) {
-    if (typeof body !== 'string') {
-        return [];
-    }
-
-    try {
-        const value = JSON.parse(body);
-
-        if (value?.kind !== 'prayer-content-blocks' || !Array.isArray(value.blocks)) {
-            return [];
-        }
-
-        return value.blocks;
-    } catch {
-        return [];
-    }
-}
-
-function getFirstContentImageUrl(blocks: Array<Record<string, any>>, body: unknown) {
-    const imageBlock = blocks.find((block) => block?.type === 'image' && block.imageUrl?.trim());
-
-    if (imageBlock) {
-        return imageBlock.imageUrl.trim();
-    }
-
-    if (typeof body !== 'string') {
-        return null;
-    }
-
-    const markdownImage = body.match(/!\[[^\]]*]\(([^)\s]+)[^)]*\)/);
-    if (markdownImage?.[1]) {
-        return markdownImage[1];
-    }
-
-    const htmlImage = body.match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
-    return htmlImage?.[1] || null;
-}
-
-function renderContentBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
-    return blocks
-        .map((block) => {
-            let title = block.title || '';
-            let body = '';
-
-            if (block.type === 'dynamic') {
-                const day = block.days?.find((item: Record<string, any>) => item.dayNumber === dayNumber);
-                title = day?.title || '';
-                body = day?.body || '';
-            } else if (block.type === 'image') {
-                title = block.title || block.alt || '';
-            } else {
-                body = block.body || '';
-            }
-
-            return [title, body].filter(Boolean).join('\n');
-        })
-        .filter(Boolean)
-        .join('\n\n');
-}

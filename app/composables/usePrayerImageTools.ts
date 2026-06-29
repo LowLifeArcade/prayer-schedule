@@ -64,6 +64,11 @@ export function usePrayerImageTools() {
         }
 
         ocrStatus.value = 'Reading image text...';
+        if (import.meta.dev && window.__PRAYER_TEST_OCR_TEXT__) {
+            const text = window.__PRAYER_TEST_OCR_TEXT__;
+            ocrStatus.value = '';
+            return text;
+        }
         const worker = await getOcrWorker();
         const result = await worker.recognize(file);
         const text = result.data.text

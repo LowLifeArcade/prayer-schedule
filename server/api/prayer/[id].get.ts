@@ -1,3 +1,5 @@
+import { parseContentBlocks, renderSelectedBlocks } from '~~/shared/prayer';
+
 export default defineEventHandler(async (event) => {
     const { id } = getRouterParams(event);
     const { day } = getQuery(event);
@@ -50,13 +52,15 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 422, statusMessage: 'there was a problem getting your prayer progress' });
     }
 
-    const dayNumbers = new Set(days.rows.length ? days.rows.map((item) => item.day_number) : [1]);
-    const completedDays = new Set(progress.rows.map((item) => item.day_number).filter((dayNumber) => dayNumbers.has(dayNumber)));
+    const dayRows = days.rows || [];
+    const progressRows = progress.rows || [];
+    const dayNumbers = new Set(dayRows.length ? dayRows.map((item) => Number(item.day_number)) : [1]);
+    const completedDays = new Set(progressRows.map((item) => Number(item.day_number)).filter((dayNumber) => dayNumbers.has(dayNumber)));
     const requestedDay = Number(day);
     const selectedDay =
-        days.rows.find((item) => item.day_number === requestedDay) ||
-        days.rows.find((item) => !completedDays.has(item.day_number)) ||
-        days.rows.at(-1);
+        dayRows.find((item) => item.day_number === requestedDay) ||
+        dayRows.find((item) => !completedDays.has(Number(item.day_number))) ||
+        dayRows.at(-1);
 
     const selectedDayBody = selectedDay?.body || '';
     const selectedDayContentMode = selectedDay?.content_mode || 'static';
@@ -66,7 +70,7 @@ export default defineEventHandler(async (event) => {
         selectedDay && selectedDayContentMode === 'dynamic' && selectedDayBody !== prayerRow.body && !composedBlocks.length
             ? selectedDayBody
             : null;
-    const selectedBlocks = composedBlocks.length ? renderSelectedBlocks(composedBlocks, selectedDay?.day_number || 1) : [];
+    const selectedBlocks = composedBlocks.length ? renderSelectedBlocks(composedBlocks, Number(selectedDay?.day_number || 1)) : [];
 
     return {
         ...prayerRow,
@@ -89,70 +93,17 @@ export default defineEventHandler(async (event) => {
         selectedDayContentMode,
         isOwner: prayerRow.user_id === user.uid,
         isAdded: Boolean(prayerRow.added_user_id),
-        totalDays: days.rows.length || 1,
+        totalDays: dayRows.length || 1,
         completedDays: [...completedDays],
-        isPrayed: completedDays.size >= (days.rows.length || 1),
-        days: days.rows.map((item) => ({
+        isPrayed: completedDays.size >= (dayRows.length || 1),
+        days: dayRows.map((item) => ({
             dayNumber: item.day_number,
             title: item.title,
             body: item.body,
             imageUrl: item.image_url,
             thumbnailImageUrl: item.thumbnail_image_url,
             contentMode: item.content_mode,
-            isComplete: completedDays.has(item.day_number),
+            isComplete: completedDays.has(Number(item.day_number)),
         })),
     };
 });
-
-function parseContentBlocks(body: unknown) {
-    if (typeof body !== 'string') {
-        return [];
-    }
-
-    try {
-        const value = JSON.parse(body);
-
-        if (value?.kind !== 'prayer-content-blocks' || !Array.isArray(value.blocks)) {
-            return [];
-        }
-
-        return value.blocks;
-    } catch {
-        return [];
-    }
-}
-
-function renderSelectedBlocks(blocks: Array<Record<string, any>>, dayNumber: number) {
-    return blocks
-        .map((block) => {
-            if (block.type === 'dynamic') {
-                const day = block.days?.find((item: Record<string, any>) => item.dayNumber === dayNumber);
-                return {
-                    id: block.id,
-                    type: 'dynamic',
-                    name: block.name || block.title || '',
-                    title: day?.title || '',
-                    body: day?.body || '',
-                };
-            }
-
-            if (block.type === 'image') {
-                return {
-                    id: block.id,
-                    type: 'image',
-                    title: block.title || '',
-                    imageUrl: block.imageUrl || '',
-                    alt: block.alt || '',
-                    body: '',
-                };
-            }
-
-            return {
-                id: block.id,
-                type: 'static',
-                title: block.title || '',
-                body: block.body || '',
-            };
-        })
-        .filter((block) => block.title || block.body || block.imageUrl);
-}

@@ -4,6 +4,13 @@
     "private": true,
     "scripts": {
         "build": "nuxt build",
+        "typecheck": "nuxt typecheck",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "check": "npm run test && npm run typecheck && npm run build",
+        "check:deploy": "npm run check && npm run test:e2e",
         "dev": "NODE_OPTIONS=--no-deprecation CLOUDFLARE_ENV=dev nuxt dev",
         "generate": "nuxt generate",
         "preview": "npm run build && wrangler dev --config wrangler.jsonc --env dev",
@@ -43,9 +50,13 @@
     },
     "devDependencies": {
         "@cloudflare/workers-types": "^4.20260317.1",
+        "@playwright/test": "^1.61.1",
         "@types/node": "^25.4.0",
         "nitro-cloudflare-dev": "^0.2.2",
         "nitropack": "^2.13.1",
+        "typescript": "^5.9.3",
+        "vitest": "^3.2.4",
+        "vue-tsc": "^3.1.5",
         "wrangler": "^4.72.0"
     }
 }

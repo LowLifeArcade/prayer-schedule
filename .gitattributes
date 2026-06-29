@@ -1,0 +1,2 @@
+# Large generated Cloudflare binding declarations should not dominate diffs or reviews.
+worker-configuration.d.ts linguist-generated=true

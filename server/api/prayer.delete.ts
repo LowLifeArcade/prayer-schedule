@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
-    const { id } = getQuery(event);
+    const queryId = getQuery(event).id;
+    const id = typeof queryId === 'string' ? queryId : '';
     const db = useDatabase();
     const d1 = (await db.getInstance()) as D1Database;
     const { user } = await getUserSession(event);

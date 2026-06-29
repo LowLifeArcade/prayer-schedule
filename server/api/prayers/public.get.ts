@@ -1,3 +1,5 @@
+import { getReadablePreview } from '~~/shared/prayer';
+
 export default defineEventHandler(async (event) => {
     const { user } = await getUserSession(event);
 
@@ -38,7 +40,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ message: 'There was a problem getting public prayers', statusCode: 400 });
     }
 
-    return prayers.rows.map((prayer) => ({
+    return (prayers.rows || []).map((prayer) => ({
         id: prayer.id,
         title: prayer.title,
         showTitleInThumbnail: prayer.show_title_in_thumbnail !== 0,
@@ -47,39 +49,6 @@ export default defineEventHandler(async (event) => {
         totalDays: prayer.total_days || 1,
         isAdded: Boolean(prayer.is_added),
         isOwner: prayer.user_id === user.uid,
-        readPreview: getReadablePreview(prayer.body, prayer.preview),
+        readPreview: getReadablePreview(prayer.body, typeof prayer.preview === 'string' ? prayer.preview : ''),
     }));
 });
-
-function getReadablePreview(body: unknown, fallback: string) {
-    if (typeof body !== 'string') {
-        return fallback;
-    }
-
-    try {
-        const value = JSON.parse(body);
-
-        if (value?.kind !== 'prayer-content-blocks' || !Array.isArray(value.blocks)) {
-            return fallback;
-        }
-
-        return value.blocks
-            .map((block: Record<string, any>) => {
-                if (block.type === 'dynamic') {
-                    const firstDay = block.days?.[0];
-                    return [firstDay?.title, firstDay?.body].filter(Boolean).join('\n');
-                }
-
-                if (block.type === 'image') {
-                    return block.title || block.alt || '';
-                }
-
-                return [block.title, block.body].filter(Boolean).join('\n');
-            })
-            .filter(Boolean)
-            .join('\n\n')
-            .substring(0, 900);
-    } catch {
-        return body.substring(0, 900);
-    }
-}

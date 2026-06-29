@@ -11,4 +11,10 @@ declare module 'h3' {
     }
 }
 
+declare global {
+    interface Window {
+        __PRAYER_TEST_OCR_TEXT__?: string;
+    }
+}
+
 export {};
