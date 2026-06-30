@@ -640,8 +640,7 @@
             grid-template-columns: repeat(2, 1fr);
         }
 
-        .prayer,
-        .add-prayer {
+        .prayer {
             padding: 2rem;
             min-height: 200px;
             border-radius: 1.3rem;
@@ -858,17 +857,21 @@
             }
         }
 
-        .add-prayer {
-            width: 100%;
-            display: grid;
-            place-items: center;
-            height: 100%;
-            background-color: var(--color-surface-2);
-            transition: filter 200ms ease-in-out;
+    }
 
-            &:hover {
-                filter: brightness(1.5);
-            }
+    .add-prayer {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        min-height: 100px;
+        padding: 2rem;
+        border-radius: 1.3rem;
+        background-color: var(--color-surface-2);
+        transition: filter 200ms ease-in-out;
+        margin-bottom: 2rem;
+
+        &:hover {
+            filter: brightness(1.5);
         }
     }
 
@@ -1237,4 +1240,3 @@
         transform: translateY(-1rem);
     }
 }
-
