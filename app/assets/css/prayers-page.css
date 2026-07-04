@@ -1240,3 +1240,1517 @@
         transform: translateY(-1rem);
     }
 }
+
+/* Guest home — a warm, editorial product story. */
+.v-prayers .home-v2 {
+    --home-red: #a9342b;
+    --home-red-deep: #79231e;
+    --home-green: #2e685b;
+    --home-gold: #c49753;
+    gap: 0;
+    padding: 0 0 8rem;
+}
+
+.v-prayers .home-v2__hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(42rem, 0.96fr);
+    align-items: center;
+    gap: clamp(4rem, 7vw, 11rem);
+    min-height: min(82rem, calc(100vh - 10rem));
+    padding: clamp(5rem, 9vw, 11rem) 0 10rem;
+}
+
+.v-prayers .home-v2__hero::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: -18rem;
+    right: -26rem;
+    width: 76rem;
+    height: 76rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--home-red) 12%, transparent), transparent 68%);
+    pointer-events: none;
+}
+
+.v-prayers .home-v2__hero-copy {
+    display: grid;
+    gap: 2.4rem;
+    animation: rise-in 700ms ease both;
+}
+
+.v-prayers .home-v2__kicker {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    color: var(--home-red);
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__kicker-mark {
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border: 1px solid color-mix(in srgb, var(--home-red) 42%, transparent);
+    border-radius: 50%;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    text-transform: none;
+}
+
+.v-prayers .home-v2__hero-copy h2 {
+    max-width: 12ch;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(5rem, 7.4vw, 10.5rem);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 0.92;
+}
+
+.v-prayers .home-v2__hero-copy h2 em {
+    color: var(--home-red);
+    font-weight: 400;
+}
+
+.v-prayers .home-v2__lede {
+    max-width: 65rem;
+    color: var(--color-text-muted);
+    font-size: clamp(1.8rem, 1.8vw, 2.2rem);
+    line-height: 1.6;
+}
+
+.v-prayers .home-v2__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+}
+
+.v-prayers .home-v2__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    min-height: 5.6rem;
+    padding: 1.4rem 2.1rem;
+    border-radius: 999px;
+    font-size: 1.55rem;
+    font-weight: 850;
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.v-prayers .home-v2__button:hover {
+    transform: translateY(-0.25rem);
+}
+
+.v-prayers .home-v2__button--primary {
+    background: var(--home-red);
+    color: #fff;
+    box-shadow: 0 1.8rem 4rem rgba(121, 35, 30, 0.24);
+}
+
+.v-prayers .home-v2__button--quiet {
+    border: 1px solid var(--color-border-2);
+    background: var(--color-surface);
+}
+
+.v-prayers .home-v2__promise {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem 2.2rem;
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.v-prayers .home-v2__promise span {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.v-prayers .home-v2__promise i {
+    color: var(--home-green);
+    font-style: normal;
+}
+
+.v-prayers .home-v2__showcase {
+    position: relative;
+    min-height: 58rem;
+    animation: float-in 800ms 100ms ease both;
+}
+
+.v-prayers .home-v2__halo {
+    position: absolute;
+    inset: 1rem 4rem 2rem;
+    border: 1px solid color-mix(in srgb, var(--home-gold) 48%, transparent);
+    border-radius: 50% 50% 47% 53%;
+    transform: rotate(-8deg);
+}
+
+.v-prayers .home-v2__halo::after {
+    content: '';
+    position: absolute;
+    inset: 4rem -2rem -3rem 3rem;
+    border: 1px solid color-mix(in srgb, var(--home-red) 20%, transparent);
+    border-radius: 50%;
+}
+
+.v-prayers .home-v2__app-card {
+    position: absolute;
+    z-index: 2;
+    top: 4rem;
+    left: 5%;
+    width: min(46rem, 88%);
+    padding: 2.3rem;
+    border: 1px solid color-mix(in srgb, var(--color-border-2) 72%, transparent);
+    border-radius: 2.8rem;
+    background: color-mix(in srgb, var(--color-surface) 94%, #fff);
+    box-shadow: 0 4rem 9rem rgba(30, 20, 18, 0.2);
+    transform: rotate(-2deg);
+}
+
+.v-prayers .home-v2__app-card header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.4rem 2rem;
+}
+
+.v-prayers .home-v2__app-card header > div {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.v-prayers .home-v2__app-card header strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2.6rem;
+    font-weight: 400;
+}
+
+.v-prayers .home-v2__overline {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__avatar {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--home-red);
+    color: #fff;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.v-prayers .home-v2__today {
+    display: grid;
+    gap: 1.8rem;
+    padding: 2rem;
+    border-radius: 2rem;
+    background: var(--home-red-deep);
+    color: #fff;
+}
+
+.v-prayers .home-v2__today .home-v2__overline {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.v-prayers .home-v2__prayer-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.3rem;
+}
+
+.v-prayers .home-v2__saint-medallion {
+    display: grid;
+    place-items: center;
+    width: 6.2rem;
+    height: 6.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #d5aa67, #93652c);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.08em;
+}
+
+.v-prayers .home-v2__prayer-row > div:not(.home-v2__saint-medallion) {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.v-prayers .home-v2__prayer-row strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.v-prayers .home-v2__prayer-row span {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 1.2rem;
+}
+
+.v-prayers .home-v2__prayer-row button {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--home-red-deep);
+}
+
+.v-prayers .home-v2__progress {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 0.5rem;
+}
+
+.v-prayers .home-v2__progress span {
+    height: 0.45rem;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.v-prayers .home-v2__progress .complete {
+    background: #dbb676;
+}
+
+.v-prayers .home-v2__mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.v-prayers .home-v2__mini-grid article {
+    display: grid;
+    gap: 0.7rem;
+    min-height: 13rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1.8rem;
+    background: color-mix(in srgb, var(--color-bg) 66%, var(--color-surface));
+}
+
+.v-prayers .home-v2__mini-grid article > span:not(.home-v2__feature-symbol) {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__mini-grid strong {
+    align-self: end;
+    font-size: 1.45rem;
+}
+
+.v-prayers .home-v2__season-card,
+.v-prayers .home-v2__done-card {
+    position: absolute;
+    z-index: 3;
+    border: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 96%, #fff);
+    box-shadow: 0 1.8rem 5rem rgba(30, 20, 18, 0.16);
+}
+
+.v-prayers .home-v2__season-card {
+    right: 0;
+    bottom: 3rem;
+    display: grid;
+    gap: 0.5rem;
+    width: 21rem;
+    padding: 1.6rem;
+    border-radius: 1.6rem;
+    transform: rotate(4deg);
+}
+
+.v-prayers .home-v2__season-card span {
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__season-card strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.9rem;
+    font-weight: 400;
+}
+
+.v-prayers .home-v2__season-card i {
+    width: 100%;
+    height: 0.35rem;
+    margin-top: 0.6rem;
+    border-radius: 99px;
+    background: var(--home-green);
+}
+
+.v-prayers .home-v2__done-card {
+    top: 1.5rem;
+    right: -1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.v-prayers .home-v2__done-card span {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--home-green);
+    color: #fff;
+}
+
+.v-prayers .home-v2__manifesto {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-block: 1px solid var(--color-border);
+}
+
+.v-prayers .home-v2__manifesto span {
+    padding: 2.4rem 2rem;
+    color: var(--color-text-muted);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.7rem, 2vw, 2.4rem);
+    font-style: italic;
+    text-align: center;
+}
+
+.v-prayers .home-v2__manifesto span + span {
+    border-left: 1px solid var(--color-border);
+}
+
+.v-prayers .home-v2__features {
+    display: grid;
+    gap: 5rem;
+    padding: 12rem 0;
+}
+
+.v-prayers .home-v2__section-heading {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 90rem;
+}
+
+.v-prayers .home-v2__section-heading h2,
+.v-prayers .home-v2__flow h2,
+.v-prayers .home-v2__closing h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(4rem, 6vw, 8rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+}
+
+.v-prayers .home-v2__section-heading > p:last-child {
+    max-width: 69rem;
+    color: var(--color-text-muted);
+    font-size: 1.8rem;
+    line-height: 1.55;
+}
+
+.v-prayers .home-v2__feature-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+
+.v-prayers .home-v2__feature-grid article {
+    display: grid;
+    align-content: start;
+    gap: 1.5rem;
+    min-height: 30rem;
+    padding: 2.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2.2rem;
+    background: var(--color-surface);
+    overflow: hidden;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.v-prayers .home-v2__feature-grid article:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 2rem 5rem rgba(30, 20, 18, 0.11);
+}
+
+.v-prayers .home-v2__feature-grid .feature-1,
+.v-prayers .home-v2__feature-grid .feature-4 {
+    grid-column: span 7;
+}
+
+.v-prayers .home-v2__feature-grid .feature-2,
+.v-prayers .home-v2__feature-grid .feature-3 {
+    grid-column: span 5;
+}
+
+.v-prayers .home-v2__feature-grid .feature-1 {
+    background: var(--home-red-deep);
+    color: #fff;
+}
+
+.v-prayers .home-v2__feature-grid .feature-3 {
+    background: color-mix(in srgb, var(--home-green) 16%, var(--color-surface));
+}
+
+.v-prayers .home-v2__feature-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.v-prayers .home-v2__feature-symbol {
+    display: grid;
+    place-items: center;
+    width: 4.8rem;
+    height: 4.8rem;
+    border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+    border-radius: 50%;
+    color: var(--home-red);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.8rem;
+}
+
+.v-prayers .feature-1 .home-v2__feature-symbol {
+    color: #e1be82;
+}
+
+.v-prayers .home-v2__feature-number {
+    color: color-mix(in srgb, currentColor 46%, transparent);
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.v-prayers .home-v2__feature-grid h3 {
+    max-width: 15ch;
+    margin-top: 2rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.7rem, 3vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1;
+}
+
+.v-prayers .home-v2__feature-grid p {
+    max-width: 58rem;
+    color: color-mix(in srgb, currentColor 67%, transparent);
+    font-size: 1.55rem;
+    line-height: 1.55;
+}
+
+.v-prayers .home-v2__feature-meta {
+    align-self: end;
+    justify-self: start;
+    margin-top: auto;
+    padding: 0.7rem 1rem;
+    border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    border-radius: 999px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__flow {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 1.5rem;
+    padding-bottom: 12rem;
+}
+
+.v-prayers .home-v2__flow-card,
+.v-prayers .home-v2__flow blockquote {
+    border-radius: 2.4rem;
+}
+
+.v-prayers .home-v2__flow-card {
+    display: grid;
+    gap: 2.4rem;
+    padding: clamp(3rem, 5vw, 6rem);
+    background: color-mix(in srgb, var(--home-green) 15%, var(--color-surface));
+}
+
+.v-prayers .home-v2__steps {
+    display: grid;
+    gap: 0;
+    margin-top: 2rem;
+}
+
+.v-prayers .home-v2__steps article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.6rem;
+    padding: 2rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--home-green) 23%, transparent);
+}
+
+.v-prayers .home-v2__steps article > span {
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    background: var(--home-green);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.v-prayers .home-v2__steps h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+}
+
+.v-prayers .home-v2__steps p {
+    margin-top: 0.4rem;
+    color: var(--color-text-muted);
+    font-size: 1.45rem;
+    line-height: 1.45;
+}
+
+.v-prayers .home-v2__flow blockquote {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 56rem;
+    padding: 4rem;
+    background: var(--home-red-deep);
+    color: #fff;
+    overflow: hidden;
+}
+
+.v-prayers .home-v2__flow blockquote::before {
+    content: '';
+    position: absolute;
+    top: -10rem;
+    right: -8rem;
+    width: 32rem;
+    height: 32rem;
+    border: 1px solid rgba(225, 190, 130, 0.35);
+    border-radius: 50%;
+    box-shadow: 0 0 0 5rem rgba(225, 190, 130, 0.04), 0 0 0 10rem rgba(225, 190, 130, 0.03);
+}
+
+.v-prayers .home-v2__flow blockquote > span {
+    color: #e1be82;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 8rem;
+    line-height: 0.6;
+}
+
+.v-prayers .home-v2__flow blockquote p {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(3rem, 4vw, 5rem);
+    font-style: italic;
+    line-height: 1.05;
+}
+
+.v-prayers .home-v2__flow blockquote footer {
+    margin-top: 2rem;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.v-prayers .home-v2__closing {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4rem;
+    padding: clamp(3.5rem, 7vw, 8rem);
+    border-radius: 2.8rem;
+    background: var(--home-red);
+    color: #fff;
+}
+
+.v-prayers .home-v2__closing > div {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.v-prayers .home-v2__closing .eyebrow {
+    color: #f0ce94;
+}
+
+.v-prayers .home-v2__closing h2 {
+    max-width: 11ch;
+}
+
+.v-prayers .home-v2__closing p:last-child {
+    max-width: 60rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1.7rem;
+    line-height: 1.5;
+}
+
+.v-prayers .home-v2__button--light {
+    flex: 0 0 auto;
+    background: #fff;
+    color: var(--home-red-deep);
+    box-shadow: 0 1.8rem 4rem rgba(80, 10, 8, 0.2);
+}
+
+@media (width < 980px) {
+    .v-prayers .home-v2__hero,
+    .v-prayers .home-v2__flow {
+        grid-template-columns: 1fr;
+    }
+
+    .v-prayers .home-v2__hero {
+        min-height: auto;
+    }
+
+    .v-prayers .home-v2__showcase {
+        width: min(62rem, 100%);
+        margin-inline: auto;
+    }
+
+    .v-prayers .home-v2__closing {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (width < 640px) {
+    .v-prayers .home-v2__hero {
+        gap: 4rem;
+        padding: 3rem 0 7rem;
+    }
+
+    .v-prayers .home-v2__hero-copy h2 {
+        font-size: 5.3rem;
+    }
+
+    .v-prayers .home-v2__actions,
+    .v-prayers .home-v2__button {
+        width: 100%;
+    }
+
+    .v-prayers .home-v2__promise {
+        display: grid;
+    }
+
+    .v-prayers .home-v2__showcase {
+        min-height: 51rem;
+    }
+
+    .v-prayers .home-v2__app-card {
+        left: 0;
+        width: 96%;
+        padding: 1.5rem;
+    }
+
+    .v-prayers .home-v2__season-card {
+        right: -0.5rem;
+        bottom: 0;
+    }
+
+    .v-prayers .home-v2__done-card {
+        display: none;
+    }
+
+    .v-prayers .home-v2__manifesto {
+        grid-template-columns: 1fr;
+    }
+
+    .v-prayers .home-v2__manifesto span + span {
+        border-top: 1px solid var(--color-border);
+        border-left: 0;
+    }
+
+    .v-prayers .home-v2__features {
+        padding: 8rem 0;
+    }
+
+    .v-prayers .home-v2__feature-grid .feature-1,
+    .v-prayers .home-v2__feature-grid .feature-2,
+    .v-prayers .home-v2__feature-grid .feature-3,
+    .v-prayers .home-v2__feature-grid .feature-4 {
+        grid-column: span 12;
+    }
+
+    .v-prayers .home-v2__flow {
+        padding-bottom: 8rem;
+    }
+
+    .v-prayers .home-v2__flow blockquote {
+        min-height: 46rem;
+        padding: 3rem;
+    }
+
+    .v-prayers .home-v2__closing {
+        padding: 3rem 2.4rem;
+    }
+}
+
+/* Modern devotional composition: freer rhythm with dimensional sacred ornament. */
+.v-prayers .home-v2__saints {
+    position: relative;
+    grid-template-columns: minmax(27rem, 0.72fr) minmax(0, 1.28fr);
+    align-items: center;
+    gap: clamp(6rem, 11vw, 16rem);
+    padding: clamp(11rem, 15vw, 20rem) 3vw clamp(9rem, 13vw, 17rem);
+    border: 0;
+}
+
+.v-prayers .home-v2__saints::before {
+    content: '';
+    position: absolute;
+    top: 11%;
+    left: 42%;
+    width: 1px;
+    height: 78%;
+    background: linear-gradient(transparent, color-mix(in srgb, var(--old-gold) 42%, transparent), transparent);
+    transform: rotate(8deg);
+}
+
+.v-prayers .home-v2__saints-intro {
+    transform: translateY(-4rem);
+}
+
+.v-prayers .home-v2__saints-intro h2 {
+    max-width: 8ch;
+}
+
+.v-prayers .home-v2__saint-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem 2rem;
+    border: 0;
+    box-shadow: none;
+    transform: none;
+}
+
+.v-prayers .home-v2__saint-list article {
+    position: relative;
+    min-height: 15rem;
+    padding: 2.8rem;
+    border: 1px solid color-mix(in srgb, var(--old-gold) 38%, var(--color-border));
+    background: color-mix(in srgb, var(--color-surface) 96%, var(--old-gold));
+    box-shadow: 1rem 1.2rem 2.8rem rgba(22, 14, 10, 0.09);
+}
+
+.v-prayers .home-v2__saint-list article::before,
+.v-prayers .home-v2__saint-list article::after {
+    content: '';
+    position: absolute;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-color: var(--old-gold);
+}
+
+.v-prayers .home-v2__saint-list article::before {
+    top: -0.6rem;
+    left: -0.6rem;
+    border-top: 2px solid var(--old-gold);
+    border-left: 2px solid var(--old-gold);
+}
+
+.v-prayers .home-v2__saint-list article::after {
+    right: -0.6rem;
+    bottom: -0.6rem;
+    border-right: 2px solid var(--old-gold);
+    border-bottom: 2px solid var(--old-gold);
+}
+
+.v-prayers .home-v2__saint-list article:nth-child(2) {
+    transform: translateY(6rem);
+}
+
+.v-prayers .home-v2__saint-list article:nth-child(3) {
+    transform: translateX(-3rem);
+}
+
+.v-prayers .home-v2__saint-list article:nth-child(4) {
+    transform: translate(1rem, 3rem);
+}
+
+.v-prayers .home-v2__angel-interlude {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(35rem, 48vw, 68rem);
+    margin-inline: calc(50% - 50vw);
+    background:
+        radial-gradient(circle at center, rgba(113, 31, 24, 0.28), transparent 35%),
+        #050403;
+    overflow: hidden;
+}
+
+.v-prayers .home-v2__angel-interlude::before,
+.v-prayers .home-v2__angel-interlude::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    width: min(78vw, 110rem);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #b68a47 18%, #e2c180 50%, #b68a47 82%, transparent);
+    transform: translateX(-50%);
+}
+
+.v-prayers .home-v2__angel-interlude::before {
+    top: 4rem;
+}
+
+.v-prayers .home-v2__angel-interlude::after {
+    bottom: 4rem;
+}
+
+.v-prayers .home-v2__angel-interlude > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0.92;
+}
+
+.v-prayers .home-v2__angel-prayer {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(12rem, 18vw, 25rem);
+    aspect-ratio: 0.82;
+    padding: 2rem;
+    color: #ead8b7;
+    text-align: center;
+    text-shadow: 0 0.4rem 2rem #000;
+}
+
+.v-prayers .home-v2__angel-prayer > span {
+    color: #d8ac62;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(4rem, 6vw, 8rem);
+    line-height: 0.8;
+}
+
+.v-prayers .home-v2__angel-prayer p {
+    color: #c49b5b;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__angel-prayer strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.5rem, 2.2vw, 3rem);
+    font-weight: 400;
+    line-height: 1.05;
+}
+
+.v-prayers .home-v2__features {
+    gap: clamp(7rem, 10vw, 14rem);
+    padding: clamp(12rem, 17vw, 23rem) 0;
+}
+
+.v-prayers .home-v2__section-heading {
+    max-width: 82rem;
+    margin-left: clamp(0rem, 9vw, 14rem);
+}
+
+.v-prayers .home-v2__feature-grid {
+    position: relative;
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    gap: clamp(2rem, 4vw, 6rem);
+    align-items: start;
+}
+
+.v-prayers .home-v2__feature-grid .feature-1 {
+    grid-column: 1 / span 8;
+    min-height: 48rem;
+}
+
+.v-prayers .home-v2__feature-grid .feature-2 {
+    grid-column: 10 / span 5;
+    min-height: 34rem;
+    margin-top: 12rem;
+}
+
+.v-prayers .home-v2__feature-grid .feature-3 {
+    grid-column: 2 / span 5;
+    min-height: 35rem;
+    margin-top: -3rem;
+}
+
+.v-prayers .home-v2__feature-grid .feature-4 {
+    grid-column: 8 / span 7;
+    min-height: 45rem;
+    margin-top: 7rem;
+}
+
+.v-prayers .home-v2__feature-grid article {
+    position: relative;
+    isolation: isolate;
+    justify-content: end;
+    padding: clamp(3rem, 5vw, 7rem);
+    border-radius: 0;
+    box-shadow: 1.5rem 1.8rem 4rem rgba(27, 17, 12, 0.12);
+}
+
+.v-prayers .home-v2__feature-grid article > *:not(.home-v2__reliquary-frame) {
+    position: relative;
+    z-index: 2;
+}
+
+.v-prayers .home-v2__reliquary-frame {
+    position: absolute;
+    z-index: 1;
+    inset: -1.4rem;
+    width: calc(100% + 2.8rem);
+    height: calc(100% + 2.8rem);
+    object-fit: fill;
+    opacity: 0.72;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.v-prayers .home-v2__feature-grid .feature-4 {
+    background:
+        radial-gradient(circle at 78% 20%, rgba(181, 134, 70, 0.23), transparent 32%),
+        #17120f;
+    color: #f2e6cf;
+}
+
+.v-prayers .home-v2__feature-grid .feature-4 .home-v2__feature-symbol {
+    color: #d4aa64;
+}
+
+.v-prayers .home-v2__feature-grid h3 {
+    max-width: 11ch;
+    font-size: clamp(3.2rem, 4vw, 5.8rem);
+}
+
+.v-prayers .home-v2__flow {
+    position: relative;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 0;
+    padding: 5rem 3vw clamp(16rem, 20vw, 28rem);
+}
+
+.v-prayers .home-v2__flow-card {
+    z-index: 2;
+    margin: 8rem -4rem -8rem 0;
+    padding: clamp(4rem, 7vw, 9rem);
+    box-shadow: 1.5rem 2rem 5rem rgba(24, 15, 11, 0.14);
+}
+
+.v-prayers .home-v2__flow blockquote {
+    min-height: 72rem;
+    padding: clamp(5rem, 7vw, 9rem);
+}
+
+.v-prayers .home-v2__closing {
+    position: relative;
+    margin-inline: clamp(0rem, 5vw, 8rem);
+    padding: clamp(5rem, 9vw, 12rem);
+    overflow: visible;
+}
+
+.v-prayers .home-v2__closing::before,
+.v-prayers .home-v2__closing::after {
+    content: '✦';
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 5.4rem;
+    height: 5.4rem;
+    border: 1px solid #d4ad6d;
+    border-radius: 50%;
+    background: #70251f;
+    color: #e4c58e;
+    font-size: 1.8rem;
+    box-shadow: inset 0 0 0 0.5rem #70251f, inset 0 0 0 0.6rem rgba(228, 197, 142, 0.4);
+}
+
+.v-prayers .home-v2__closing::before {
+    top: -2.7rem;
+    left: 12%;
+}
+
+.v-prayers .home-v2__closing::after {
+    right: 12%;
+    bottom: -2.7rem;
+}
+
+@media (width < 980px) {
+    .v-prayers .home-v2__saints {
+        grid-template-columns: 1fr;
+        padding-inline: 0;
+    }
+
+    .v-prayers .home-v2__saints::before {
+        display: none;
+    }
+
+    .v-prayers .home-v2__saints-intro {
+        transform: none;
+    }
+
+    .v-prayers .home-v2__saints-intro h2 {
+        max-width: 12ch;
+    }
+
+    .v-prayers .home-v2__feature-grid .feature-1,
+    .v-prayers .home-v2__feature-grid .feature-2,
+    .v-prayers .home-v2__feature-grid .feature-3,
+    .v-prayers .home-v2__feature-grid .feature-4 {
+        grid-column: span 7;
+        min-height: 38rem;
+        margin-top: 0;
+    }
+
+    .v-prayers .home-v2__flow-card {
+        margin: 0 4rem -5rem 0;
+    }
+}
+
+@media (width < 640px) {
+    .v-prayers .home-v2__saint-list {
+        gap: 2rem;
+    }
+
+    .v-prayers .home-v2__saint-list article:nth-child(n) {
+        transform: none;
+    }
+
+    .v-prayers .home-v2__angel-interlude {
+        min-height: 34rem;
+    }
+
+    .v-prayers .home-v2__angel-interlude > img {
+        width: 145%;
+        max-width: none;
+        left: -22.5%;
+    }
+
+    .v-prayers .home-v2__angel-prayer {
+        width: 10rem;
+    }
+
+    .v-prayers .home-v2__section-heading {
+        margin-left: 0;
+    }
+
+    .v-prayers .home-v2__feature-grid {
+        gap: 4rem;
+    }
+
+    .v-prayers .home-v2__feature-grid .feature-1,
+    .v-prayers .home-v2__feature-grid .feature-2,
+    .v-prayers .home-v2__feature-grid .feature-3,
+    .v-prayers .home-v2__feature-grid .feature-4 {
+        grid-column: span 14;
+        min-height: 37rem;
+    }
+
+    .v-prayers .home-v2__feature-grid article {
+        padding: 4rem 3rem;
+    }
+
+    .v-prayers .home-v2__flow {
+        padding-inline: 0;
+    }
+
+    .v-prayers .home-v2__flow-card {
+        margin: 0 1.5rem -3rem 0;
+    }
+
+    .v-prayers .home-v2__flow blockquote {
+        min-height: 55rem;
+    }
+
+    .v-prayers .home-v2__closing {
+        margin-inline: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .v-prayers .home-v2__hero-copy,
+    .v-prayers .home-v2__showcase {
+        animation: none;
+    }
+
+    .v-prayers .home-v2__button,
+    .v-prayers .home-v2__feature-grid article {
+        transition: none;
+    }
+}
+
+/* Devotional treatment: fresco, worn paper, and ecclesial ornament. */
+.v-prayers .home-v2 {
+    --parchment: #e8dcc3;
+    --ink: #241a15;
+    --fresco-red: #802a22;
+    --old-gold: #ae864c;
+    position: relative;
+}
+
+.v-prayers .home-v2::before {
+    content: '';
+    position: fixed;
+    z-index: -2;
+    inset: 0;
+    opacity: 0.14;
+    background-image:
+        repeating-linear-gradient(97deg, transparent 0 6px, rgba(92, 62, 38, 0.08) 7px 8px),
+        repeating-linear-gradient(3deg, transparent 0 11px, rgba(255, 255, 255, 0.06) 12px 13px);
+    pointer-events: none;
+}
+
+.v-prayers .home-v2__hero {
+    grid-template-columns: minmax(0, 0.8fr) minmax(28rem, 1.2fr);
+    min-height: 76rem;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: max(2rem, calc((100vw - 1500px) / 2 + 1rem));
+    border-block: 1px solid rgba(174, 134, 76, 0.5);
+    background-image:
+        linear-gradient(90deg, rgba(18, 13, 11, 0.97) 0%, rgba(18, 13, 11, 0.86) 33%, rgba(18, 13, 11, 0.28) 64%, rgba(18, 13, 11, 0.12) 100%),
+        url('/images/christ-and-saints-fresco.png');
+    background-position: center;
+    background-size: cover;
+    color: #f3ead8;
+    overflow: hidden;
+}
+
+.v-prayers .home-v2__hero::before {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 2.5rem;
+    width: 1px;
+    height: auto;
+    border-radius: 0;
+    background: linear-gradient(transparent, var(--old-gold) 22%, var(--old-gold) 78%, transparent);
+}
+
+.v-prayers .home-v2__hero::after {
+    content: 'IHS';
+    position: absolute;
+    right: 4rem;
+    bottom: 2rem;
+    color: rgba(211, 170, 100, 0.24);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(7rem, 12vw, 18rem);
+    letter-spacing: -0.08em;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.v-prayers .home-v2__hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 74rem;
+    padding: 4rem 0;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.65);
+}
+
+.v-prayers .home-v2__kicker,
+.v-prayers .home-v2__hero-copy h2 em {
+    color: #d5ad6b;
+}
+
+.v-prayers .home-v2__kicker-mark {
+    border-color: #b98c4e;
+}
+
+.v-prayers .home-v2__invocation {
+    margin-bottom: -1.2rem;
+    color: rgba(243, 234, 216, 0.72);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__hero-copy h2 {
+    max-width: 10ch;
+    color: #f4ead6;
+    font-size: clamp(5.5rem, 7vw, 10rem);
+}
+
+.v-prayers .home-v2__lede {
+    max-width: 61rem;
+    color: rgba(243, 234, 216, 0.78);
+}
+
+.v-prayers .home-v2__button {
+    border-radius: 0.25rem;
+}
+
+.v-prayers .home-v2__button--primary {
+    border: 1px solid #c9a362;
+    background: var(--fresco-red);
+    box-shadow: 0.6rem 0.7rem 0 rgba(15, 9, 7, 0.6);
+}
+
+.v-prayers .home-v2__button--quiet {
+    border-color: rgba(221, 193, 145, 0.55);
+    background: rgba(31, 22, 18, 0.72);
+    color: #f3ead8;
+    backdrop-filter: blur(5px);
+}
+
+.v-prayers .home-v2__promise {
+    color: rgba(243, 234, 216, 0.65);
+}
+
+.v-prayers .home-v2__promise i {
+    color: #d5ad6b;
+}
+
+.v-prayers .home-v2__devotional-note {
+    position: relative;
+    z-index: 2;
+    align-self: end;
+    justify-self: end;
+    width: min(29rem, 90%);
+    margin-bottom: 2rem;
+    padding: 2rem;
+    border: 1px solid rgba(216, 177, 111, 0.5);
+    border-radius: 50% 50% 0.3rem 0.3rem;
+    background: rgba(26, 18, 14, 0.82);
+    color: #eee0c6;
+    text-align: center;
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.v-prayers .home-v2__chi-rho {
+    display: block;
+    margin-bottom: 1.2rem;
+    color: #cda764;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 5rem;
+}
+
+.v-prayers .home-v2__devotional-note p {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.v-prayers .home-v2__devotional-note small {
+    display: block;
+    margin-top: 1rem;
+    color: #cda764;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__saints {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(4rem, 8vw, 12rem);
+    padding: 10rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.v-prayers .home-v2__saints-intro {
+    display: grid;
+    align-content: start;
+    gap: 1.5rem;
+}
+
+.v-prayers .home-v2__saints-intro h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(4rem, 6vw, 7rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+}
+
+.v-prayers .home-v2__saints-intro > p:last-child {
+    color: var(--color-text-muted);
+    font-size: 1.7rem;
+    line-height: 1.55;
+}
+
+.v-prayers .home-v2__saint-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--color-border-2);
+    border-left: 1px solid var(--color-border-2);
+    transform: rotate(0.6deg);
+    box-shadow: 0.8rem 0.9rem 0 color-mix(in srgb, var(--old-gold) 22%, transparent);
+}
+
+.v-prayers .home-v2__saint-list article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 1.4rem;
+    min-height: 12rem;
+    padding: 2rem;
+    border-right: 1px solid var(--color-border-2);
+    border-bottom: 1px solid var(--color-border-2);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--color-surface) 92%, var(--old-gold)), var(--color-surface));
+}
+
+.v-prayers .home-v2__saint-list article > span {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border: 1px solid var(--old-gold);
+    border-radius: 50%;
+    color: var(--fresco-red);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    box-shadow: inset 0 0 0 0.35rem color-mix(in srgb, var(--old-gold) 16%, transparent);
+}
+
+.v-prayers .home-v2__saint-list article > div {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.v-prayers .home-v2__saint-list strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.v-prayers .home-v2__saint-list small {
+    color: var(--color-text-muted);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+}
+
+.v-prayers .home-v2__feature-grid article,
+.v-prayers .home-v2__flow-card,
+.v-prayers .home-v2__flow blockquote,
+.v-prayers .home-v2__closing {
+    border-radius: 0.35rem;
+}
+
+.v-prayers .home-v2__feature-grid article {
+    border-color: color-mix(in srgb, var(--old-gold) 44%, var(--color-border));
+    box-shadow: 0.7rem 0.8rem 0 color-mix(in srgb, var(--old-gold) 18%, transparent);
+}
+
+.v-prayers .home-v2__feature-grid .feature-1,
+.v-prayers .home-v2__flow blockquote {
+    background:
+        repeating-linear-gradient(7deg, transparent 0 10px, rgba(255, 255, 255, 0.018) 11px 12px),
+        #4e1c18;
+}
+
+.v-prayers .home-v2__flow-card {
+    border: 1px solid color-mix(in srgb, var(--old-gold) 50%, transparent);
+    background:
+        repeating-linear-gradient(95deg, transparent 0 8px, rgba(87, 56, 31, 0.045) 9px 10px),
+        color-mix(in srgb, var(--old-gold) 12%, var(--color-surface));
+}
+
+.v-prayers .home-v2__closing {
+    border: 1px solid #bd9458;
+    background:
+        radial-gradient(circle at 83% 24%, rgba(211, 172, 107, 0.25), transparent 28%),
+        repeating-linear-gradient(4deg, transparent 0 11px, rgba(255, 255, 255, 0.02) 12px 13px),
+        #72251f;
+    box-shadow: 1rem 1.1rem 0 color-mix(in srgb, var(--old-gold) 20%, transparent);
+}
+
+@media (width < 980px) {
+    .v-prayers .home-v2__hero {
+        grid-template-columns: 1fr;
+        background-position: 62% center;
+    }
+
+    .v-prayers .home-v2__devotional-note {
+        display: none;
+    }
+
+    .v-prayers .home-v2__saints {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (width < 640px) {
+    .v-prayers .home-v2 {
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .v-prayers .home-v2__hero {
+        min-height: 74rem;
+        grid-template-columns: minmax(0, 1fr);
+        margin-inline: -1rem;
+        padding-inline: 2rem;
+        background-image:
+            linear-gradient(180deg, rgba(18, 13, 11, 0.92) 0%, rgba(18, 13, 11, 0.8) 55%, rgba(18, 13, 11, 0.42) 100%),
+            url('/images/christ-and-saints-fresco.png');
+        background-position: 66% center;
+    }
+
+    .v-prayers .home-v2__hero-copy h2 {
+        font-size: 5.4rem;
+    }
+
+    .v-prayers .home-v2__saints {
+        padding: 7rem 0;
+    }
+
+    .v-prayers .home-v2__saint-list {
+        grid-template-columns: 1fr;
+    }
+
+    .v-prayers .home-v2__hero {
+        width: calc(100% + 2rem);
+        max-width: none;
+        min-width: 0;
+        overflow: clip;
+    }
+
+    .v-prayers .home-v2__hero-copy,
+    .v-prayers .home-v2__kicker,
+    .v-prayers .home-v2__actions,
+    .v-prayers .home-v2__promise {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .v-prayers .home-v2__kicker > span:last-child {
+        min-width: 0;
+        line-height: 1.45;
+    }
+}
+
+/* Keep the full-bleed artwork while giving the hero content a deliberate gutter. */
+.v-prayers .home-v2__hero {
+    padding-inline: max(clamp(3rem, 6vw, 10rem), calc((100vw - 1500px) / 2 + 3rem));
+}
+
+@media (width < 640px) {
+    .v-prayers .home-v2__hero {
+        padding-inline: clamp(2.4rem, 5vw, 3.2rem);
+    }
+}
